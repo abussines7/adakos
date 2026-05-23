@@ -32,8 +32,16 @@ export default function HeroSection() {
           >
             <option value="semua">Semua Area Sekitar Unhas</option>
             <option value="Perintis Kemerdekaan 3">Perintis Kemerdekaan 3</option>
+            <option value="Perintis Kemerdekaan 4">Perintis Kemerdekaan 4</option>
+            <option value="Perintis Kemerdekaan 6">Perintis Kemerdekaan 6</option>
             <option value="Perintis Kemerdekaan 7">Perintis Kemerdekaan 7</option>
+            <option value="Perintis Kemerdekaan 8">Perintis Kemerdekaan 8</option>
             <option value="Jalan Bung">Jalan Bung</option>
+            <option value="Kera-Kera">Kera-Kera</option>
+            <option value="Sahabat">Sahabat</option>
+            <option value="Damai">Damai</option>
+            <option value="Workshop">Workshop</option>
+            <option value="Pintu Nol">Pintu Nol</option>
           </select>
           <button 
             type="submit" 
