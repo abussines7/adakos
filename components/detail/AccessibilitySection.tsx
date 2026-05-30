@@ -22,10 +22,10 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
     switch (status) {
       case 'aman':
         return {
-          bg: 'bg-gradient-to-br from-emerald-50 via-emerald-50/30 to-white border-emerald-200/80 shadow-lg shadow-emerald-100/30',
-          iconBg: 'bg-emerald-100 text-emerald-600 ring-4 ring-emerald-50',
+          bg: 'bg-white border-emerald-200 shadow-md text-slate-900',
+          iconBg: 'bg-emerald-50 text-emerald-600 ring-4 ring-emerald-50/50',
           icon: <ShieldCheck className="w-8 h-8" />,
-          titleColor: 'text-emerald-950',
+          titleColor: 'text-slate-900',
           badgeText: '✓ BEBAS BANJIR 100%',
           badgeBg: 'bg-emerald-600 text-white font-bold tracking-wide text-xs px-3 py-1 rounded-full shadow-sm shadow-emerald-200',
           description: 'Lokasi ini tidak memiliki riwayat genangan banjir berdasarkan informasi pemilik kos. Aman untuk kendaraan motor dan mobil sepanjang tahun.',
@@ -33,10 +33,10 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
         };
       case 'kadang_tergenang':
         return {
-          bg: 'bg-gradient-to-br from-amber-50 via-amber-50/20 to-white border-amber-200/80 shadow-lg shadow-amber-100/30',
-          iconBg: 'bg-amber-100 text-amber-600 ring-4 ring-amber-50',
+          bg: 'bg-white border-amber-200 shadow-md text-slate-900',
+          iconBg: 'bg-amber-50 text-amber-600 ring-4 ring-amber-50/50',
           icon: <AlertTriangle className="w-8 h-8" />,
-          titleColor: 'text-amber-950',
+          titleColor: 'text-slate-900',
           badgeText: '⚠️ KADANG TERGENANG',
           badgeBg: 'bg-amber-500 text-white font-bold tracking-wide text-xs px-3 py-1 rounded-full shadow-sm shadow-amber-200',
           description: 'Jalan akses kadang tergenang saat hujan lebat. Kondisi biasanya kembali normal setelah hujan reda.',
@@ -45,10 +45,10 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
       case 'rawan':
       default:
         return {
-          bg: 'bg-gradient-to-br from-rose-50 via-rose-50/20 to-white border-rose-200/80 shadow-lg shadow-rose-100/30',
-          iconBg: 'bg-rose-100 text-rose-600 ring-4 ring-rose-50',
+          bg: 'bg-white border-rose-200 shadow-md text-slate-900',
+          iconBg: 'bg-rose-50 text-rose-600 ring-4 ring-rose-50/50',
           icon: <AlertTriangle className="w-8 h-8" />,
-          titleColor: 'text-rose-950',
+          titleColor: 'text-slate-900',
           badgeText: '🚨 RAWAN BANJIR',
           badgeBg: 'bg-rose-600 text-white font-bold tracking-wide text-xs px-3 py-1 rounded-full shadow-sm shadow-rose-200',
           description: 'Lokasi ini rawan genangan banjir saat curah hujan tinggi. Disarankan menyimpan barang berharga dan kendaraan di tempat yang lebih tinggi selama musim penghujan tiba.',
@@ -64,35 +64,35 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
     switch (kondisi) {
       case 'mulus':
         return {
-          bg: 'bg-gradient-to-br from-emerald-50 via-emerald-50/30 to-white border-emerald-200/80 shadow-lg shadow-emerald-100/30',
-          iconBg: 'bg-emerald-100 text-emerald-600 ring-4 ring-emerald-50',
+          bg: 'bg-white border-emerald-200 shadow-md text-slate-900',
+          iconBg: 'bg-emerald-50 text-emerald-600 ring-4 ring-emerald-50/50',
           icon: <ShieldCheck className="w-8 h-8" />,
-          titleColor: 'text-emerald-950',
+          titleColor: 'text-slate-900',
           badgeText: 'Jalan Mulus',
-          badgeBg: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badgeBg: 'bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full font-bold',
           description: 'Akses jalan dilapisi aspal rata atau paving block yang lebar. Sangat nyaman, halus, dan stabil dilalui baik oleh mobil maupun motor.',
           kendaraanLabel: 'Akses Mobil & Motor Sangat Lancar'
         };
       case 'cukup_baik':
         return {
-          bg: 'bg-gradient-to-br from-amber-50 via-amber-50/20 to-white border-amber-200/80 shadow-lg shadow-amber-100/30',
-          iconBg: 'bg-amber-100 text-amber-600 ring-4 ring-amber-50',
+          bg: 'bg-white border-amber-200 shadow-md text-slate-900',
+          iconBg: 'bg-amber-50 text-amber-600 ring-4 ring-amber-50/50',
           icon: <AlertTriangle className="w-8 h-8" />,
-          titleColor: 'text-amber-950',
+          titleColor: 'text-slate-900',
           badgeText: 'Jalan Cukup Baik',
-          badgeBg: 'bg-amber-100 text-amber-800 border border-amber-200',
+          badgeBg: 'bg-amber-100 text-amber-800 border border-amber-200 px-3 py-1 rounded-full font-bold',
           description: 'Kondisi jalan cor semen atau paving memadai. Terdapat beberapa kerusakan atau tambalan minor di beberapa titik namun masih aman dilalui berkendara sehari-hari.',
           kendaraanLabel: 'Akses Motor Utama, Mobil Harus Hati-Hati'
         };
       case 'rusak':
       default:
         return {
-          bg: 'bg-gradient-to-br from-rose-50 via-rose-50/20 to-white border-rose-200/80 shadow-lg shadow-rose-100/30',
-          iconBg: 'bg-rose-100 text-rose-600 ring-4 ring-rose-50',
+          bg: 'bg-white border-rose-200 shadow-md text-slate-900',
+          iconBg: 'bg-rose-50 text-rose-600 ring-4 ring-rose-50/50',
           icon: <Construction className="w-8 h-8" />,
-          titleColor: 'text-rose-950',
+          titleColor: 'text-slate-900',
           badgeText: 'Jalan Rusak',
-          badgeBg: 'bg-rose-100 text-rose-800 border border-rose-200',
+          badgeBg: 'bg-rose-100 text-rose-800 border border-rose-200 px-3 py-1 rounded-full font-bold',
           description: 'Akses jalan berbatu, berlubang signifikan, atau tanah becek becek saat musim hujan. Harap mengendarai kendaraan dengan sangat pelan demi keselamatan.',
           kendaraanLabel: 'Hanya Direkomendasikan untuk Motor'
         };
@@ -117,10 +117,10 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
             1. CARD STATUS BANJIR (PREMIUM SEMANTIC CARD)
             ============================================================
             KEPUTUSAN DESAIN (STATUS BANJIR):
-            Mengapa menggunakan background gradient dengan soft glow semantik dan ikon ShieldCheck besar?
+            Mengapa menggunakan background solid dengan soft glow semantik dan ikon ShieldCheck besar?
             1. Mengurangi beban kognitif pengguna (cognitive load) dengan langsung mengomunikasikan tingkat keamanan banjir melalui warna universal (hijau/kuning/merah).
             2. Memberikan jaminan psikologis (psychological safety) yang kuat bagi calon penyewa luar daerah melalui "Social Proof & Trust Badge" berskala besar (bukan sekadar label kecil).
-            3. Efek border semi-transparan untuk kesan premium dan modern (glassmorphism feel) yang cocok dengan ekspektasi mahasiswa generasi Z.
+            3. Menggunakan solid background bg-white untuk menjamin rasio kontras maksimal di perangkat mobile.
         */}
         <div className={`p-6 rounded-3xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-xl ${banjir.bg}`}>
           <div className="flex items-start justify-between gap-4 mb-4">
@@ -133,10 +133,10 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
           </div>
           
           <h3 className={`text-xl font-bold mb-2 ${banjir.titleColor}`}>Keamanan & Risiko Banjir</h3>
-          <p className="text-sm leading-relaxed text-slate-600 mb-4">{banjir.description}</p>
+          <p className="text-sm leading-relaxed text-slate-700 mb-4">{banjir.description}</p>
           
           {/* Badge Social Proof khusus sebagai trust signal */}
-          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-600">
             <span>{banjir.socialProof}</span>
           </div>
         </div>
@@ -148,6 +148,7 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
             Mengapa memisahkan kondisi jalan dan akses kendaraan ke dalam visualisasi kartu semantik?
             1. Kondisi jalan adalah faktor penentu kedua setelah banjir untuk mahasiswa yang membawa kendaraan.
             2. Ikon 'Construction' secara visual langsung memicu kehati-hatian pengguna terhadap jalan rusak tanpa perlu membaca deskripsi teks panjang.
+            3. Menggunakan solid background bg-white untuk kontras maksimal di segala kondisi pencahayaan.
         */}
         <div className={`p-6 rounded-3xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-xl ${jalan.bg}`}>
           <div className="flex items-start justify-between gap-4 mb-4">
@@ -160,9 +161,9 @@ export default function AccessibilitySection({ kos }: { kos: KosProperty }) {
           </div>
           
           <h3 className={`text-xl font-bold mb-2 ${jalan.titleColor}`}>Kondisi Akses Jalan</h3>
-          <p className="text-sm leading-relaxed text-slate-600 mb-4">{jalan.description}</p>
+          <p className="text-sm leading-relaxed text-slate-700 mb-4">{jalan.description}</p>
           
-          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-600">
             <span>🚀 {jalan.kendaraanLabel}</span>
           </div>
         </div>
