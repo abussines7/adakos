@@ -1,12 +1,13 @@
-// components/home/FeaturedKos.tsx
-import { kosData } from '@/data/kos-data';
 import KosCard from '../explore/KosCard';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { KosProperty } from '@/data/types';
 
-export default function FeaturedKos() {
-  // Ambil 3 kos pertama sebagai properti unggulan
-  const featured = kosData.slice(0, 3);
+interface FeaturedKosProps {
+  kosList: KosProperty[];
+}
+
+export default function FeaturedKos({ kosList }: FeaturedKosProps) {
 
   return (
     <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -21,7 +22,7 @@ export default function FeaturedKos() {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {featured.map((kos) => (
+        {kosList.map((kos) => (
           <KosCard key={kos.id} kos={kos} />
         ))}
       </div>

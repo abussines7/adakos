@@ -1,5 +1,10 @@
+export const revalidate = 300;
+
 // src/app/kos/[id]/page.tsx
-import { kosData } from '@/data/kos-data';
+import { db } from '@/src/db';
+import { kos as kosTable } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
+import { KosProperty } from '@/data/types';
 import { notFound } from 'next/navigation';
 import ImageGallery from '@/components/detail/ImageGallery';
 import AccessibilitySection from '@/components/detail/AccessibilitySection';
@@ -12,11 +17,83 @@ export default async function KosDetail({ params }: { params: Promise<{ id: stri
   // Tunggu parameter URL terekstrak (Standar baru Next.js 15)
   const resolvedParams = await params;
   
-  // Cari data kos berdasarkan ID dari URL
-  const kos = kosData.find(k => k.id === resolvedParams.id);
-  
-  if (!kos) {
-    notFound();
+  let kos: KosProperty;
+  try {
+    // Cari data kos berdasarkan slug di database
+    const result = await db.query.kos.findFirst({
+      where: eq(kosTable.slug, resolvedParams.id),
+      with: {
+        area: true,
+        pemilik: true,
+        foto: {
+          orderBy: (foto, { asc }) => [asc(foto.urutan)],
+        },
+        fasilitasInternal: {
+          with: {
+            fasilitas: true,
+          },
+        },
+        fasilitasSekitar: true,
+        ruteKampus: {
+          orderBy: (rute, { asc }) => [asc(rute.urutan)],
+        },
+      },
+    });
+    
+    if (!result) {
+      notFound();
+    }
+
+    // Petakan ke format KosProperty agar komponen UI tidak break
+    kos = {
+      id: result.slug,
+      nama: result.nama,
+      tipe: result.tipe,
+      area: result.area ? result.area.nama : '',
+      harga_bulanan: result.harga_bulanan,
+      foto: result.foto ? result.foto.map((f) => f.url) : [],
+      fasilitas_internal: result.fasilitasInternal
+        ? result.fasilitasInternal.map((junction) => junction.fasilitas.nama)
+        : [],
+      kondisi_jalan: result.kondisi_jalan,
+      akses_kendaraan: (result.akses_kendaraan || []) as any,
+      status_banjir: result.status_banjir,
+      fasilitas_sekitar: result.fasilitasSekitar
+        ? result.fasilitasSekitar.map((fs) => ({
+            nama: fs.nama,
+            jarak_meter: fs.jarak_meter,
+          }))
+        : [],
+      rute_kampus: result.ruteKampus
+        ? result.ruteKampus.map((r) => ({
+            rute: r.rute,
+            estimasi_waktu: r.estimasi_waktu,
+          }))
+        : [],
+      koordinat: {
+        lat: result.latitude,
+        lng: result.longitude,
+      },
+      kontak_pemilik: result.pemilik ? result.pemilik.telepon : '',
+    };
+  } catch (error) {
+    console.warn(`Gagal memuat detail kos ${resolvedParams.id} dari database:`, error);
+    const isPlaceholderDb = 
+      process.env.DATABASE_URL?.includes('[PASSWORD_ANDA]') || 
+      process.env.DIRECT_URL?.includes('[PASSWORD_ANDA]') ||
+      !process.env.DATABASE_URL;
+      
+    if (isPlaceholderDb) {
+      console.info('Menggunakan fallback mock data karena database belum terkonfigurasi.');
+      const { kosData } = require('@/data/kos-data');
+      const fallback = kosData.find((k: any) => k.id === resolvedParams.id);
+      if (!fallback) {
+        notFound();
+      }
+      kos = fallback;
+    } else {
+      throw error;
+    }
   }
 
   const hargaFormatted = new Intl.NumberFormat('id-ID', {
