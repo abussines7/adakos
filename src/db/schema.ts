@@ -135,3 +135,25 @@ export const kosFasilitasInternalRelations = relations(kosFasilitasInternal, ({ 
   kos: one(kos, { fields: [kosFasilitasInternal.kos_id], references: [kos.id] }),
   fasilitas: one(fasilitasInternal, { fields: [kosFasilitasInternal.fasilitas_id], references: [fasilitasInternal.id] }),
 }));
+// Tambahan relasi balikan (Child to Parent) yang hilang
+
+export const kosFotoRelations = relations(kosFoto, ({ one }) => ({
+  kos: one(kos, {
+    fields: [kosFoto.kos_id],
+    references: [kos.id]
+  }),
+}));
+
+export const fasilitasSekitarRelations = relations(fasilitasSekitar, ({ one }) => ({
+  kos: one(kos, {
+    fields: [fasilitasSekitar.kos_id],
+    references: [kos.id]
+  }),
+}));
+
+export const ruteKampusRelations = relations(ruteKampus, ({ one }) => ({
+  kos: one(kos, {
+    fields: [ruteKampus.kos_id],
+    references: [kos.id]
+  }),
+}));
