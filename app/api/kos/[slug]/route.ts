@@ -5,7 +5,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/src/db';
 import { kos } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     // Query single Kos along with all relations
     const result = await db.query.kos.findFirst({
-      where: eq(kos.slug, slug),
+      where: and(eq(kos.slug, slug), eq(kos.is_published, true)),
       with: {
         area: true,
         pemilik: true,
@@ -94,7 +94,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   } catch (error) {
     console.error('Error fetching kos detail:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Internal Server Error', message: 'Gagal memuat detail kos' },
       { status: 500 }
     );
   }

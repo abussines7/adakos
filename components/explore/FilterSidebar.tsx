@@ -1,7 +1,6 @@
 // src/components/explore/FilterSidebar.tsx
 'use client';
 
-import { useKosFilter } from '@/hooks/useKosFilter';
 import { useState, useEffect } from 'react';
 
 interface AreaOption {
@@ -10,8 +9,19 @@ interface AreaOption {
   slug: string;
 }
 
-export default function FilterSidebar() {
-  const { currentArea, currentTipe, setFilter, resetFilters } = useKosFilter();
+interface FilterSidebarProps {
+  currentArea: string;
+  currentTipe: string;
+  setFilter: (key: string, value: string) => void;
+  resetFilters: () => void;
+}
+
+export default function FilterSidebar({
+  currentArea,
+  currentTipe,
+  setFilter,
+  resetFilters,
+}: FilterSidebarProps) {
   const [areas, setAreas] = useState<AreaOption[]>([]);
 
   useEffect(() => {
@@ -38,32 +48,30 @@ export default function FilterSidebar() {
         </button>
       </div>
 
-      {/* Filter Area */}
       <div className="mb-6">
         <label className="block text-sm font-semibold text-slate-700 mb-2">Area / Lokasi</label>
-        <select 
+        <select
           value={currentArea}
           onChange={(e) => setFilter('area', e.target.value)}
           className="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm cursor-pointer"
         >
           <option value="semua">Semua Area</option>
           {areas.map((a) => (
-            <option key={a.id} value={a.nama}>
+            <option key={a.id} value={a.slug}>
               {a.nama}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Filter Tipe */}
       <div>
         <label className="block text-sm font-semibold text-slate-700 mb-2">Tipe Kos</label>
         <div className="flex flex-col gap-2">
           {['semua', 'putra', 'putri', 'campur'].map((tipe) => (
             <label key={tipe} className="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="radio" 
-                name="tipe" 
+              <input
+                type="radio"
+                name="tipe"
                 value={tipe}
                 checked={currentTipe === tipe}
                 onChange={(e) => setFilter('tipe', e.target.value)}

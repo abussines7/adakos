@@ -3,7 +3,7 @@ export const revalidate = 300;
 // src/app/kos/[id]/page.tsx
 import { db } from '@/src/db';
 import { kos as kosTable } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { KosProperty } from '@/data/types';
 import { notFound } from 'next/navigation';
 import ImageGallery from '@/components/detail/ImageGallery';
@@ -21,7 +21,7 @@ export default async function KosDetail({ params }: { params: Promise<{ id: stri
   try {
     // Cari data kos berdasarkan slug di database
     const result = await db.query.kos.findFirst({
-      where: eq(kosTable.slug, resolvedParams.id),
+      where: and(eq(kosTable.slug, resolvedParams.id), eq(kosTable.is_published, true)),
       with: {
         area: true,
         pemilik: true,

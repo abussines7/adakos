@@ -27,14 +27,17 @@ function LoadingSkeleton() {
 
 // Komponen internal pembungkus agar useSearchParams aman
 function ExploreContent() {
-  const { 
-    filteredKos, 
-    resetFilters, 
-    loading, 
-    error, 
-    aiParams, 
-    currentAiQuery, 
-    setFilter 
+  const {
+    filteredKos,
+    resetFilters,
+    loading,
+    error,
+    aiParams,
+    currentAiQuery,
+    currentArea,
+    currentTipe,
+    setFilter,
+    total,
   } = useKosFilter();
 
   const [localAiQuery, setLocalAiQuery] = useState(currentAiQuery);
@@ -150,7 +153,12 @@ function ExploreContent() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar Kiri */}
         <div className="w-full md:w-64 shrink-0">
-          <FilterSidebar />
+          <FilterSidebar
+            currentArea={currentArea}
+            currentTipe={currentTipe}
+            setFilter={setFilter}
+            resetFilters={resetFilters}
+          />
         </div>
 
         {/* Grid Kanan */}
@@ -162,7 +170,8 @@ function ExploreContent() {
           )}
 
           <div className="mb-4 text-sm text-slate-500">
-            Menampilkan <span className="font-bold text-slate-900">{filteredKos.length}</span> properti
+            Menampilkan <span className="font-bold text-slate-900">{filteredKos.length}</span>
+            {total > filteredKos.length ? ` dari ${total}` : ''} properti
           </div>
 
           {loading ? (

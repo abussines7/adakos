@@ -1,47 +1,70 @@
 // app/api/search/ai/route.ts
 // Next.js Route Handler — AI Smart Search (Google AI Studio Gemini)
-// Parses natural language query to database filters and returns matched properties
 
 import { NextResponse } from 'next/server';
-import { db } from '@/src/db';
-import { kos, area, kosFoto } from '@/src/db/schema';
-import { and, eq, gte, lte, ilike, sql, SQL, desc } from 'drizzle-orm';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { getCachedAreas } from '@/src/lib/areas';
+import {
+  buildAiPrompt,
+  isGeminiServiceError,
+  sanitizeUserQuery,
+  toClientAiParams,
+  validateAiParams,
+} from '@/src/lib/ai-search';
+import {
+  aiParamsToFilters,
+  fallbackKeywordSearch,
+  listPublishedKos,
+} from '@/src/lib/kos-queries';
+import { checkRateLimit, getClientIp } from '@/src/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
+const AI_RATE_LIMIT = 10;
+const AI_RATE_WINDOW_MS = 60_000;
+
 export async function POST(request: Request) {
+  const clientIp = getClientIp(request);
+  if (!checkRateLimit(`ai-search:${clientIp}`, AI_RATE_LIMIT, AI_RATE_WINDOW_MS)) {
+    return NextResponse.json(
+      { error: 'Too Many Requests', message: 'Terlalu banyak permintaan. Coba lagi nanti.' },
+      { status: 429 }
+    );
+  }
+
   let queryText = '';
+
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'Configuration Error', message: 'GEMINI_API_KEY environment variable is not configured.' },
+        { error: 'Configuration Error', message: 'Layanan pencarian AI belum dikonfigurasi.' },
         { status: 500 }
       );
     }
 
-    // Parse request payload
-    let body;
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Bad Request', message: 'Invalid JSON body' }, { status: 400 });
     }
 
-    const { query } = body;
-    if (!query || typeof query !== 'string' || query.trim() === '') {
-      return NextResponse.json({ error: 'Bad Request', message: 'Query string is required' }, { status: 400 });
+    try {
+      queryText = sanitizeUserQuery((body as { query?: unknown })?.query);
+    } catch (err) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: err instanceof Error ? err.message : 'Query string is required' },
+        { status: 400 }
+      );
     }
-    queryText = query;
 
-    // 1. Fetch dynamic areas from DB for accurate model parsing (entity linking)
-    const dbAreas = await db.select({ nama: area.nama, slug: area.slug }).from(area);
+    const dbAreas = await getCachedAreas();
+    const validAreaSlugs = new Set(dbAreas.map((a) => a.slug));
     const areaListString = dbAreas
       .map((a) => `- Nama: "${a.nama}", Slug: "${a.slug}"`)
       .join('\n');
 
-    // 2. Initialize Gemini SDK
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
@@ -83,54 +106,18 @@ export async function POST(request: Request) {
             },
           },
           required: ['tipe', 'area_slug', 'kondisi_jalan', 'status_banjir', 'harga_min', 'harga_max', 'keyword'],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       },
     });
 
-    // 3. Assemble prompt with instructions and user query
-    const prompt = `
-Anda adalah parser pencarian kos untuk aplikasi Adakos (aplikasi pencarian kos mahasiswa Universitas Hasanuddin, Makassar).
-Tugas Anda adalah menerjemahkan query bahasa alami user menjadi parameter filter JSON yang terstruktur.
-
-DAFTAR AREA YANG VALID:
-${areaListString}
-
-ATURAN MAPPING KETAT:
-1. tipe:
-   - "putra" jika mencari "kos putra", "cowok", "laki-laki", "pria"
-   - "putri" jika mencari "kos putri", "cewek", "perempuan", "wanita", "akhwat"
-   - "campur" jika mencari "campur", "pasutri", "gabung"
-   - "all" jika tidak dispesifikasikan secara eksplisit.
-2. area_slug:
-   - Pilih slug area yang PALING COCOK dari daftar area di atas.
-   - Contoh: "dekat jalan bung" -> "jalan-bung"
-   - Contoh: "area sahabat" -> "sahabat"
-   - "all" jika area tidak disebutkan.
-3. kondisi_jalan:
-   - "mulus" jika mencari "dekat jalan utama", "jalan mulus", "bisa mobil", "jalan besar"
-   - "cukup_baik" atau "rusak" hanya jika secara eksplisit dispesifikasikan.
-   - "all" jika tidak disebutkan.
-4. status_banjir:
-   - "aman" jika mencari "bebas banjir", "anti banjir", "aman banjir", "tidak banjir"
-   - "all" jika tidak disebutkan.
-5. harga_min & harga_max:
-   - Cari angka harga. Contoh: "di bawah 1 juta" -> harga_max: 1000000, harga_min: 0
-   - Contoh: "harga 800 ribu sampai 1.2 juta" -> harga_min: 800000, harga_max: 1200000
-   - Gunakan 0 jika tidak ada batas bawah/atas yang dispesifikasikan.
-6. keyword:
-   - Kata kunci spesifik seperti "wifi", "ac", "kamar mandi dalam", "dekat gerbang utama".
-   - Kosongkan (string kosong "") jika tidak ada kata kunci tambahan.
-
-Query User: "${query}"
-`;
-
-    // 4. Call Gemini model
+    const prompt = buildAiPrompt(areaListString, queryText);
     const response = await model.generateContent(prompt);
     const responseText = response.response.text();
-    
-    let parsedParams;
+
+    let rawParsed: unknown;
     try {
-      parsedParams = JSON.parse(responseText);
+      rawParsed = JSON.parse(responseText);
     } catch (e) {
       console.error('Failed to parse Gemini output:', responseText, e);
       return NextResponse.json(
@@ -139,168 +126,44 @@ Query User: "${query}"
       );
     }
 
-    // 5. Build database query based on AI structured params
-    const conditions: SQL[] = [eq(kos.is_published, true)];
-
-    if (parsedParams.tipe && parsedParams.tipe !== 'all') {
-      conditions.push(eq(kos.tipe, parsedParams.tipe as 'putra' | 'putri' | 'campur'));
-    }
-
-    if (parsedParams.status_banjir && parsedParams.status_banjir !== 'all') {
-      conditions.push(eq(kos.status_banjir, parsedParams.status_banjir as 'aman' | 'rawan' | 'kadang_tergenang'));
-    }
-
-    if (parsedParams.kondisi_jalan && parsedParams.kondisi_jalan !== 'all') {
-      conditions.push(eq(kos.kondisi_jalan, parsedParams.kondisi_jalan as 'mulus' | 'cukup_baik' | 'rusak'));
-    }
-
-    if (parsedParams.harga_min && parsedParams.harga_min > 0) {
-      conditions.push(gte(kos.harga_bulanan, parsedParams.harga_min));
-    }
-
-    if (parsedParams.harga_max && parsedParams.harga_max > 0) {
-      conditions.push(lte(kos.harga_bulanan, parsedParams.harga_max));
-    }
-
-    if (parsedParams.keyword && parsedParams.keyword.trim() !== '') {
-      conditions.push(ilike(kos.nama, `%${parsedParams.keyword}%`));
-    }
-
-    if (parsedParams.area_slug && parsedParams.area_slug !== 'all') {
-      conditions.push(eq(area.slug, parsedParams.area_slug));
-    }
-
-    // Query matched kos
-    const rows = await db
-      .select({
-        slug: kos.slug,
-        nama: kos.nama,
-        tipe: kos.tipe,
-        hargaBulanan: kos.harga_bulanan,
-        statusBanjir: kos.status_banjir,
-        kondisiJalan: kos.kondisi_jalan,
-        area: {
-          nama: area.nama,
-          slug: area.slug,
-        },
-        fotoUtama: kosFoto.url,
-      })
-      .from(kos)
-      .leftJoin(area, eq(kos.area_id, area.id))
-      .leftJoin(kosFoto, and(eq(kos.id, kosFoto.kos_id), eq(kosFoto.urutan, 0)))
-      .where(and(...conditions))
-      .orderBy(desc(kos.created_at))
-      .limit(20);
-
-    const totalCountResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(kos)
-      .leftJoin(area, eq(kos.area_id, area.id))
-      .where(and(...conditions));
-
-    const total = Number(totalCountResult[0]?.count || 0);
-
-    // Format response matching camelCase to snake_case specifications
-    const formattedData = rows.map((row) => ({
-      slug: row.slug,
-      nama: row.nama,
-      tipe: row.tipe,
-      area: row.area ? {
-        nama: row.area.nama,
-        slug: row.area.slug,
-      } : null,
-      harga_bulanan: row.hargaBulanan,
-      foto_utama: row.fotoUtama || '',
-      status_banjir: row.statusBanjir,
-      kondisi_jalan: row.kondisiJalan,
-    }));
-
-    // Map internal params back to contract standard with null values for representation
-    const clientAiParams = {
-      tipe: parsedParams.tipe === 'all' ? null : parsedParams.tipe,
-      area_slug: parsedParams.area_slug === 'all' ? null : parsedParams.area_slug,
-      kondisi_jalan: parsedParams.kondisi_jalan === 'all' ? null : parsedParams.kondisi_jalan,
-      status_banjir: parsedParams.status_banjir === 'all' ? null : parsedParams.status_banjir,
-      harga_min: parsedParams.harga_min === 0 ? null : parsedParams.harga_min,
-      harga_max: parsedParams.harga_max === 0 ? null : parsedParams.harga_max,
-      keyword: parsedParams.keyword === '' ? null : parsedParams.keyword,
-    };
+    const parsedParams = validateAiParams(rawParsed, validAreaSlugs);
+    const filters = aiParamsToFilters(parsedParams);
+    const { data, total } = await listPublishedKos(filters, { limit: 20, offset: 0 });
 
     return NextResponse.json({
-      data: formattedData,
-      ai_params: clientAiParams,
+      data,
+      ai_params: toClientAiParams(parsedParams),
       total,
     });
   } catch (error) {
-    console.error('Error in AI Smart Search (falling back to token-based database keyword search):', error);
-    try {
-      const conditions: SQL[] = [eq(kos.is_published, true)];
-      
-      if (queryText && queryText.trim() !== '') {
-        // Daftar stop words bahasa Indonesia untuk dibersihkan
-        const stopWords = new Set(['cari', 'kos', 'yang', 'di', 'dan', 'dekat', 'dengan', 'saya', 'untuk', 'ke', 'ada', 'dari', 'bisa', 'anti', 'bebas']);
-        const tokens = queryText
-          .toLowerCase()
-          .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, '')
-          .split(/\s+/)
-          .filter(t => t.length > 1 && !stopWords.has(t));
-
-        if (tokens.length > 0) {
-          const tokenConditions = tokens.map(t => ilike(kos.nama, `%${t}%`));
-          // Gabungkan pencarian kata kunci dengan operator OR
-          conditions.push(sql`(${sql.join(tokenConditions, sql` OR `)})`);
-        }
-      }
-
-      const rows = await db
-        .select({
-          slug: kos.slug,
-          nama: kos.nama,
-          tipe: kos.tipe,
-          hargaBulanan: kos.harga_bulanan,
-          statusBanjir: kos.status_banjir,
-          kondisiJalan: kos.kondisi_jalan,
-          area: {
-            nama: area.nama,
-            slug: area.slug,
+    if (isGeminiServiceError(error)) {
+      console.error('AI Smart Search unavailable, using keyword fallback:', error);
+      try {
+        const { data, total } = await fallbackKeywordSearch(queryText, { limit: 20, offset: 0 });
+        return NextResponse.json({
+          data,
+          ai_params: {
+            fallback: true,
+            error: 'AI Service Unavailable',
+            tipe: null,
+            area_slug: null,
+            kondisi_jalan: null,
+            status_banjir: null,
+            harga_min: null,
+            harga_max: null,
+            keyword: null,
           },
-          fotoUtama: kosFoto.url,
-        })
-        .from(kos)
-        .leftJoin(area, eq(kos.area_id, area.id))
-        .leftJoin(kosFoto, and(eq(kos.id, kosFoto.kos_id), eq(kosFoto.urutan, 0)))
-        .where(and(...conditions))
-        .orderBy(desc(kos.created_at))
-        .limit(20);
-
-      const formattedData = rows.map((row) => ({
-        slug: row.slug,
-        nama: row.nama,
-        tipe: row.tipe,
-        area: row.area ? {
-          nama: row.area.nama,
-          slug: row.area.slug,
-        } : null,
-        harga_bulanan: row.hargaBulanan,
-        foto_utama: row.fotoUtama || '',
-        status_banjir: row.statusBanjir,
-        kondisi_jalan: row.kondisiJalan,
-      }));
-
-      return NextResponse.json({
-        data: formattedData,
-        ai_params: {
-          fallback: true,
-          error: error instanceof Error ? error.message : 'AI Service Unavailable',
-        },
-        total: formattedData.length,
-      });
-    } catch (dbError) {
-      console.error('Fallback query failed:', dbError);
-      return NextResponse.json(
-        { error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error' },
-        { status: 500 }
-      );
+          total,
+        });
+      } catch (dbError) {
+        console.error('Fallback query failed:', dbError);
+      }
     }
+
+    console.error('Unexpected AI search error:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', message: 'Gagal memproses pencarian' },
+      { status: 500 }
+    );
   }
 }

@@ -12,11 +12,13 @@ interface WhatsAppCTAProps {
 
 export default function WhatsAppCTA({ kosId, kosNama, kontakPemilik }: WhatsAppCTAProps) {
   const handleClick = () => {
-    // Track event via Vercel Analytics (hanya di production)
     trackWhatsAppClick(kosId, kosNama);
 
-    // Buka WhatsApp di tab baru — UX tetap instan tanpa menunggu tracking
-    window.open(buildWhatsAppUrl(kontakPemilik, kosNama), '_blank');
+    try {
+      window.open(buildWhatsAppUrl(kontakPemilik, kosNama), '_blank');
+    } catch {
+      console.error('Invalid WhatsApp contact for kos:', kosId);
+    }
   };
 
   return (
