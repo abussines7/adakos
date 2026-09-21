@@ -1,25 +1,14 @@
 // app/api/areas/route.ts
 // Next.js Route Handler — Get all master areas
-// Optimized lookup sorted alphabetically
 
 import { NextResponse } from 'next/server';
-import { db } from '@/src/db';
-import { area } from '@/src/db/schema';
-import { asc } from 'drizzle-orm';
+import { getCachedAreas } from '@/src/lib/areas';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const areas = await db
-      .select({
-        id: area.id,
-        nama: area.nama,
-        slug: area.slug,
-      })
-      .from(area)
-      .orderBy(asc(area.nama));
-
+    const areas = await getCachedAreas();
     return NextResponse.json({ data: areas });
   } catch (error) {
     console.error('Error fetching areas:', error);

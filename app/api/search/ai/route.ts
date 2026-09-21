@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { getCachedAreas } from '@/src/lib/areas';
 import {
-  buildAiPrompt,
+  buildAiSystemInstruction,
   isGeminiServiceError,
   sanitizeUserQuery,
   toClientAiParams,
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
+      systemInstruction: buildAiSystemInstruction(areaListString),
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -111,8 +112,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const prompt = buildAiPrompt(areaListString, queryText);
-    const response = await model.generateContent(prompt);
+    const response = await model.generateContent(queryText);
     const responseText = response.response.text();
 
     let rawParsed: unknown;

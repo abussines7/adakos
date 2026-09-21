@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 interface AreaOption {
   id: string;
@@ -49,37 +50,47 @@ export default function FilterSidebar({
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-slate-700 mb-2">Area / Lokasi</label>
-        <select
-          value={currentArea}
-          onChange={(e) => setFilter('area', e.target.value)}
-          className="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm cursor-pointer"
-        >
-          <option value="semua">Semua Area</option>
-          {areas.map((a) => (
-            <option key={a.id} value={a.slug}>
-              {a.nama}
-            </option>
-          ))}
-        </select>
+        <span className="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Area / Lokasi</span>
+        <div className="relative">
+          <select
+            value={currentArea}
+            onChange={(e) => setFilter('area', e.target.value)}
+            className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm cursor-pointer appearance-none"
+          >
+            <option value="semua">Semua Area</option>
+            {areas.map((a) => (
+              <option key={a.id} value={a.slug}>
+                {a.nama}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+            <ChevronDown size={16} />
+          </div>
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2">Tipe Kos</label>
-        <div className="flex flex-col gap-2">
-          {['semua', 'putra', 'putri', 'campur'].map((tipe) => (
-            <label key={tipe} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name="tipe"
-                value={tipe}
-                checked={currentTipe === tipe}
-                onChange={(e) => setFilter('tipe', e.target.value)}
-                className="text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm capitalize">{tipe}</span>
-            </label>
-          ))}
+        <span className="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Tipe Kos</span>
+        <div className="flex flex-wrap gap-2">
+          {['semua', 'putra', 'putri', 'campur'].map((tipe) => {
+            const isActive = currentTipe === tipe;
+            const displayLabel = tipe === 'semua' ? 'Semua' : tipe === 'putra' ? 'Putra' : tipe === 'putri' ? 'Putri' : 'Campur';
+            return (
+              <button
+                key={tipe}
+                type="button"
+                onClick={() => setFilter('tipe', tipe)}
+                className={`cursor-pointer transition-all ${
+                  isActive
+                    ? 'bg-blue-600 border border-blue-600 text-white rounded-full px-3 py-1.5 text-xs font-semibold'
+                    : 'bg-white border border-slate-200 text-slate-600 rounded-full px-3 py-1.5 text-xs font-semibold hover:border-slate-300'
+                }`}
+              >
+                {displayLabel}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

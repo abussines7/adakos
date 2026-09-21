@@ -1,11 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/kos/[slug]/route.ts
 // Next.js Route Handler — Get detailed single Kos property
-// Uses Drizzle Relational Query API to join all related sub-tables
 
 import { NextResponse } from 'next/server';
-import { db } from '@/src/db';
-import { kos } from '@/src/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,26 +21,8 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Slug parameter is required' }, { status: 400 });
     }
 
-    // Query single Kos along with all relations
-    const result = await db.query.kos.findFirst({
-      where: and(eq(kos.slug, slug), eq(kos.is_published, true)),
-      with: {
-        area: true,
-        pemilik: true,
-        foto: {
-          orderBy: (foto, { asc }) => [asc(foto.urutan)],
-        },
-        fasilitasInternal: {
-          with: {
-            fasilitas: true,
-          },
-        },
-        fasilitasSekitar: true,
-        ruteKampus: {
-          orderBy: (rute, { asc }) => [asc(rute.urutan)],
-        },
-      },
-    });
+    // Query single Kos along with all relations using fallback-enabled helper
+    const result = await findPublishedKosBySlug(slug);
 
     if (!result) {
       return NextResponse.json(
@@ -72,18 +52,18 @@ export async function GET(request: Request, { params }: RouteParams) {
         nama: result.pemilik.nama,
         telepon: result.pemilik.telepon,
       } : null,
-      foto: result.foto.map((f) => ({
+      foto: result.foto.map((f: any) => ({
         url: f.url,
         urutan: f.urutan,
         alt_text: f.alt_text,
       })),
       fasilitas_internal: result.fasilitasInternal
-        .map((junction) => junction.fasilitas.nama),
-      fasilitas_sekitar: result.fasilitasSekitar.map((fs) => ({
+        .map((junction: any) => junction.fasilitas.nama),
+      fasilitas_sekitar: result.fasilitasSekitar.map((fs: any) => ({
         nama: fs.nama,
         jarak_meter: fs.jarak_meter,
       })),
-      rute_kampus: result.ruteKampus.map((r) => ({
+      rute_kampus: result.ruteKampus.map((r: any) => ({
         rute: r.rute,
         estimasi_waktu: r.estimasi_waktu,
         urutan: r.urutan,

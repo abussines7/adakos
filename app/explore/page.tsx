@@ -1,7 +1,7 @@
 // src/app/explore/page.tsx
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
 import { useKosFilter } from '@/hooks/useKosFilter';
 import KosCard from '@/components/explore/KosCard';
 import FilterSidebar from '@/components/explore/FilterSidebar';
@@ -41,10 +41,12 @@ function ExploreContent() {
   } = useKosFilter();
 
   const [localAiQuery, setLocalAiQuery] = useState(currentAiQuery);
+  const [prevAiQuery, setPrevAiQuery] = useState(currentAiQuery);
 
-  useEffect(() => {
+  if (currentAiQuery !== prevAiQuery) {
     setLocalAiQuery(currentAiQuery);
-  }, [currentAiQuery]);
+    setPrevAiQuery(currentAiQuery);
+  }
 
   const handleAiSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +137,7 @@ function ExploreContent() {
                 )}
                 {aiParams.keyword && (
                   <span className="text-xs bg-white text-blue-700 px-3 py-1 rounded-full border border-blue-200 font-semibold shadow-sm">
-                    Kata Kunci: "{aiParams.keyword}"
+                    Kata Kunci: &quot;{aiParams.keyword}&quot;
                   </span>
                 )}
               </div>

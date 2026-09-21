@@ -6,9 +6,16 @@ import { track } from '@vercel/analytics';
  * Sentralisasi di sini agar format pesan konsisten di seluruh aplikasi.
  */
 export function buildWhatsAppUrl(kontakPemilik: string, kosNama: string): string {
-  const phone = kontakPemilik.replace(/\D/g, '');
+  let phone = kontakPemilik.replace(/\D/g, '');
   if (!phone) {
     throw new Error('Invalid phone number');
+  }
+
+  // Normalisasi nomor telepon ke format internasional (khusus Indonesia)
+  if (phone.startsWith('0')) {
+    phone = '62' + phone.slice(1);
+  } else if (phone.startsWith('8')) {
+    phone = '62' + phone;
   }
 
   const pesan = encodeURIComponent(

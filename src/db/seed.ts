@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from './index';
 import {
   area, pemilik, kos, kosFoto, fasilitasInternal,
