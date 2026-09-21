@@ -290,3 +290,19 @@ export async function fallbackKeywordSearch(
 
   return listPublishedKos(filters, pagination);
 }
+
+export async function findPublishedKosBySlug(slug: string) {
+  const result = await db.query.kos.findFirst({
+    where: and(eq(kos.slug, slug), eq(kos.is_published, true)),
+    with: {
+      area: true,
+      pemilik: true,
+      foto: { orderBy: (foto, { asc }) => [asc(foto.urutan)] },
+      fasilitasInternal: { with: { fasilitas: true } },
+      fasilitasSekitar: true,
+      ruteKampus: { orderBy: (rute, { asc }) => [asc(rute.urutan)] },
+    },
+  });
+
+  return result ?? null;
+}
