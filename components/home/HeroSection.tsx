@@ -5,7 +5,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Sparkles } from 'lucide-react';
 
-export default function HeroSection() {
+interface AreaOption {
+  id: string;
+  nama: string;
+  slug: string;
+}
+
+export default function HeroSection({ areas }: { areas: AreaOption[] }) {
   const router = useRouter();
   const [searchType, setSearchType] = useState<'standard' | 'ai'>('standard');
   const [selectedArea, setSelectedArea] = useState('semua');
@@ -81,17 +87,11 @@ export default function HeroSection() {
                   className="flex-grow bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none cursor-pointer text-sm"
                 >
                   <option value="semua">Semua Area Sekitar Unhas</option>
-                  <option value="Perintis Kemerdekaan 3">Perintis Kemerdekaan 3</option>
-                  <option value="Perintis Kemerdekaan 4">Perintis Kemerdekaan 4</option>
-                  <option value="Perintis Kemerdekaan 6">Perintis Kemerdekaan 6</option>
-                  <option value="Perintis Kemerdekaan 7">Perintis Kemerdekaan 7</option>
-                  <option value="Perintis Kemerdekaan 8">Perintis Kemerdekaan 8</option>
-                  <option value="Jalan Bung">Jalan Bung</option>
-                  <option value="Kera-Kera">Kera-Kera</option>
-                  <option value="Sahabat">Sahabat</option>
-                  <option value="Damai">Damai</option>
-                  <option value="Workshop">Workshop</option>
-                  <option value="Pintu Nol">Pintu Nol</option>
+                  {areas.map((a) => (
+                    <option key={a.id} value={a.slug}>
+                      {a.nama}
+                    </option>
+                  ))}
                 </select>
               ) : (
                 <input
@@ -114,17 +114,24 @@ export default function HeroSection() {
 
           {/* Social Proof Line */}
           <div className="text-xs font-bold text-slate-400 tracking-wider uppercase flex items-center gap-2 flex-wrap">
-            <span>11 area</span>
+            {areas.length > 0 && (
+              <>
+                <span>{areas.length} area</span>
+                <span className="text-slate-300">•</span>
+              </>
+            )}
+            <span>info kondisi jalan &amp; banjir</span>
             <span className="text-slate-300">•</span>
-            <span>ratusan kos terdaftar</span>
-            <span className="text-slate-300">•</span>
-            <span>info banjir real-time</span>
+            <span>rute ke kampus</span>
           </div>
         </div>
 
         {/* Right Column (hidden on mobile) */}
         <div className="hidden lg:flex flex-col gap-4 relative">
           <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-indigo-50 rounded-3xl -m-6 -z-10" />
+          <span className="self-end text-[10px] font-semibold text-slate-500 bg-white/80 border border-slate-200 px-2 py-0.5 rounded-md uppercase tracking-wider">
+            Contoh tampilan
+          </span>
           
           {/* Preview Card 1 */}
           <div className="bg-white border border-slate-200/60 rounded-2xl p-4 shadow-xs flex gap-4 items-center hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all duration-300">

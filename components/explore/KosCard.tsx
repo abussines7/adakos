@@ -2,10 +2,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Badge from '../shared/Badge';
-import { MapPin } from 'lucide-react';
+import { ImageOff, MapPin } from 'lucide-react';
 import { KosProperty } from '@/data/types';
 
+const BANJIR_BADGE = {
+  aman: { variant: 'success', label: 'Aman Banjir' },
+  kadang_tergenang: { variant: 'warning', label: 'Kadang Tergenang' },
+  rawan: { variant: 'danger', label: 'Rawan Banjir' },
+} as const;
+
 export default function KosCard({ kos }: { kos: KosProperty }) {
+  const banjirBadge = BANJIR_BADGE[kos.status_banjir];
+  const fotoUtama = kos.foto[0];
+
   // Format harga ke Rupiah
   const hargaFormatted = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -17,22 +26,27 @@ export default function KosCard({ kos }: { kos: KosProperty }) {
     <Link href={`/kos/${kos.id}`} className="group block bg-white rounded-2xl border border-slate-200 hover:border-blue-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5">
       {/* Thumbnail Image */}
       <div className="aspect-video relative overflow-hidden bg-slate-100">
-        <Image
-          src={kos.foto[0]}
-          alt={kos.nama}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {fotoUtama ? (
+          <Image
+            src={fotoUtama}
+            alt={kos.nama}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400">
+            <ImageOff size={28} />
+            <span className="text-xs font-medium">Foto belum tersedia</span>
+          </div>
+        )}
         <div className="absolute top-3 left-3 z-10">
           <Badge variant={kos.tipe === 'putri' ? 'success' : kos.tipe === 'putra' ? 'primary' : 'warning'}>
             {kos.tipe}
           </Badge>
         </div>
         <div className="absolute top-3 right-3 z-10">
-          <Badge variant={kos.status_banjir === 'aman' ? 'success' : 'danger'}>
-            {kos.status_banjir === 'aman' ? 'Aman Banjir' : 'Rawan Banjir'}
-          </Badge>
+          <Badge variant={banjirBadge.variant}>{banjirBadge.label}</Badge>
         </div>
       </div>
 

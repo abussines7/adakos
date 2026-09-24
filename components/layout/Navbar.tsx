@@ -33,9 +33,6 @@ export default function Navbar() {
           <Link href="/explore" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
             Eksplorasi
           </Link>
-          <Link href="/explore" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-            Cari Kos
-          </Link>
         </div>
       </div>
     </nav>

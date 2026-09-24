@@ -117,7 +117,7 @@ function ExploreContent() {
                 )}
                 {aiParams.area_slug && (
                   <span className="text-xs bg-white text-blue-700 px-3 py-1 rounded-full border border-blue-200 capitalize font-semibold shadow-sm">
-                    Area: {aiParams.area_slug.replace('-', ' ')}
+                    Area: {aiParams.area_slug.replaceAll('-', ' ')}
                   </span>
                 )}
                 {aiParams.status_banjir && (

@@ -1,5 +1,6 @@
 // app/page.tsx
 import { listPublishedKos } from '@/src/lib/kos-queries';
+import { getCachedAreas } from '@/src/lib/areas';
 import { KosProperty } from '@/data/types';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedKos from '@/components/home/FeaturedKos';
@@ -33,9 +34,16 @@ export default async function Home() {
     console.error('Gagal memuat data dari database/mock:', error);
   }
 
+  let areas: Awaited<ReturnType<typeof getCachedAreas>> = [];
+  try {
+    areas = await getCachedAreas();
+  } catch (error) {
+    console.error('Gagal memuat daftar area:', error);
+  }
+
   return (
     <div className="flex flex-col">
-      <HeroSection />
+      <HeroSection areas={areas} />
       <FeaturedKos kosList={kosList} />
     </div>
   );
