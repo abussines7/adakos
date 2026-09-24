@@ -3,6 +3,7 @@
 
 import { MessageCircle } from 'lucide-react';
 import { buildWhatsAppUrl, trackWhatsAppClick } from '@/utils/whatsapp';
+import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
 
 interface WhatsAppCTAProps {
   kosId: string;
@@ -11,6 +12,20 @@ interface WhatsAppCTAProps {
 }
 
 export default function WhatsAppCTA({ kosId, kosNama, kontakPemilik }: WhatsAppCTAProps) {
+  if (SAMPLE_DATA_MODE) {
+    return (
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 sticky top-24">
+        <h3 className="font-bold text-lg text-slate-900 mb-4">Hubungi Pemilik</h3>
+        <p className="text-sm text-slate-500 mb-4">
+          Kos ini adalah data contoh, sehingga kontak pemilik belum tersedia.
+        </p>
+        <div className="w-full text-center text-sm py-3 px-6 bg-slate-100 text-slate-400 font-semibold rounded-xl border border-dashed border-slate-200">
+          Kontak Belum Tersedia
+        </div>
+      </div>
+    );
+  }
+
   let whatsappUrl = '#';
   try {
     whatsappUrl = buildWhatsAppUrl(kontakPemilik, kosNama);

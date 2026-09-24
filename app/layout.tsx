@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import SampleDataBanner from "@/components/layout/SampleDataBanner";
 import { cn } from "@/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="id" className={cn("scroll-smooth", "font-sans", inter.variable)}>
       <body className={`${plusJakarta.className} min-h-screen flex flex-col text-slate-900 bg-slate-50 antialiased`}>
         <Navbar />
+        <SampleDataBanner />
         <main className="flex-grow flex flex-col">
           {children}
         </main>
