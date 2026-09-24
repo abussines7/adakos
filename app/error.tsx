@@ -3,6 +3,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { Construction } from 'lucide-react';
 
 export default function Error({
   error,
@@ -16,20 +17,18 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-24 text-center">
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">Terjadi kesalahan</h1>
-      <p className="text-slate-500 mb-8">
-        Halaman ini gagal dimuat. Coba lagi beberapa saat lagi.
-      </p>
-      <div className="flex justify-center gap-3">
-        <button
-          onClick={() => unstable_retry()}
-          className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold cursor-pointer"
-        >
-          Coba Lagi
+    <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center">
+      <span className="flex h-20 w-20 items-center justify-center rounded-md border-2 border-ink bg-signal">
+        <Construction size={40} aria-hidden="true" />
+      </span>
+      <h1 className="mt-6 font-wide text-3xl sm:text-4xl">Jalan sedang diperbaiki</h1>
+      <p className="mt-3 leading-relaxed text-ink-soft">Halaman ini gagal dimuat. Coba lagi beberapa saat lagi.</p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <button onClick={() => unstable_retry()} className="btn btn-signal">
+          Coba lagi
         </button>
-        <Link href="/" className="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold">
-          Ke Beranda
+        <Link href="/" className="btn btn-ghost">
+          Ke beranda
         </Link>
       </div>
     </div>

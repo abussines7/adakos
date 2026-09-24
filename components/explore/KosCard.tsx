@@ -1,84 +1,62 @@
 // components/explore/KosCard.tsx
 import Link from 'next/link';
 import Image from 'next/image';
-import Badge from '../shared/Badge';
 import { ImageOff, MapPin } from 'lucide-react';
+import AccessChip from '@/components/shared/AccessChip';
 import type { KosListRow } from '@/src/lib/kos-queries';
-
-const BANJIR_BADGE = {
-  aman: { variant: 'success', label: 'Aman Banjir' },
-  kadang_tergenang: { variant: 'warning', label: 'Kadang Tergenang' },
-  rawan: { variant: 'danger', label: 'Rawan Banjir' },
-} as const;
+import { BANJIR_INFO, JALAN_INFO, TIPE_LABEL } from '@/src/lib/kos-labels';
+import { formatRupiah } from '@/src/lib/format';
 
 export default function KosCard({ kos }: { kos: KosListRow }) {
-  const banjirBadge = BANJIR_BADGE[kos.status_banjir];
-  const fotoUtama = kos.foto_utama;
-
-  // Format harga ke Rupiah
-  const hargaFormatted = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(kos.harga_bulanan);
+  const banjir = BANJIR_INFO[kos.status_banjir];
+  const jalan = JALAN_INFO[kos.kondisi_jalan];
 
   return (
-    <Link href={`/kos/${kos.slug}`} className="group block bg-white rounded-2xl border border-slate-200 hover:border-blue-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5">
-      {/* Thumbnail Image */}
-      <div className="aspect-video relative overflow-hidden bg-slate-100">
-        {fotoUtama ? (
+    <Link
+      href={`/kos/${kos.slug}`}
+      className="group flex flex-col panel overflow-hidden transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_6px_0_var(--sign)]"
+    >
+      <div className="relative aspect-[4/3] bg-paper-deep border-b-2 border-ink overflow-hidden">
+        {kos.foto_utama ? (
           <Image
-            src={fotoUtama}
+            src={kos.foto_utama}
             alt={kos.nama}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400">
-            <ImageOff size={28} />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-muted-ink">
+            <ImageOff size={28} aria-hidden="true" />
             <span className="text-xs font-medium">Foto belum tersedia</span>
           </div>
         )}
-        <div className="absolute top-3 left-3 z-10">
-          <Badge variant={kos.tipe === 'putri' ? 'success' : kos.tipe === 'putra' ? 'primary' : 'warning'}>
-            {kos.tipe}
-          </Badge>
-        </div>
-        <div className="absolute top-3 right-3 z-10">
-          <Badge variant={banjirBadge.variant}>{banjirBadge.label}</Badge>
-        </div>
+        <span className="absolute left-3 top-3 rounded-sm bg-ink px-2 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-paper">
+          {TIPE_LABEL[kos.tipe]}
+        </span>
       </div>
 
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="font-bold text-lg text-slate-900 mb-1">{kos.nama}</h3>
-        <div className="flex items-center gap-1 text-slate-500 mb-3">
-          <MapPin size={14} />
-          <span className="text-sm">{kos.area?.nama}</span>
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div>
+          <h3 className="text-[17px] font-bold leading-snug decoration-2 underline-offset-4 group-hover:underline">
+            {kos.nama}
+          </h3>
+          {kos.area && (
+            <p className="mt-1 flex items-center gap-1 text-sm text-muted-ink">
+              <MapPin size={14} aria-hidden="true" className="shrink-0" />
+              {kos.area.nama}
+            </p>
+          )}
         </div>
-        <div className="font-bold text-blue-600 text-lg mb-3">
-          {hargaFormatted} <span className="text-sm font-normal text-slate-500">/ bulan</span>
-        </div>
-        
-        {/* Road Condition Indicator */}
-        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-            kos.kondisi_jalan === 'mulus'
-              ? 'bg-blue-50 text-blue-700'
-              : kos.kondisi_jalan === 'cukup_baik'
-              ? 'bg-amber-50 text-amber-700'
-              : 'bg-red-50 text-red-700'
-          }`}>
-            <span>🛣️</span>
-            <span>
-              {kos.kondisi_jalan === 'mulus'
-                ? 'Jalan mulus'
-                : kos.kondisi_jalan === 'cukup_baik'
-                ? 'Jalan cukup baik'
-                : 'Jalan rusak'}
-            </span>
-          </span>
+
+        <p className="font-mono text-lg font-semibold">
+          {formatRupiah(kos.harga_bulanan)}
+          <span className="text-sm font-normal text-muted-ink">/bln</span>
+        </p>
+
+        <div className="mt-auto flex flex-wrap gap-2">
+          <AccessChip level={banjir.level} label={banjir.label} />
+          <AccessChip level={jalan.level} label={jalan.label} />
         </div>
       </div>
     </Link>

@@ -1,43 +1,48 @@
-// src/components/layout/Footer.tsx
+// components/layout/Footer.tsx
 import Link from 'next/link';
+import Logo from '@/components/layout/Logo';
+import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-400 py-12 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Left Column */}
+    <footer className="mt-auto bg-ink text-paper">
+      {/* Marka jalan: garis kuning putus-putus */}
+      <div aria-hidden="true" className="h-1.5 road-dash" />
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr]">
           <div>
-            <div className="text-white font-bold text-lg mb-2">Adakos</div>
-            <p className="text-slate-500 text-sm max-w-sm">
-              E-Katalog indekos transparan di sekitar Universitas Hasanuddin Makassar.
+            <Logo />
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/70">
+              Katalog kos di sekitar Universitas Hasanuddin, lengkap dengan kondisi jalan, risiko banjir, dan rute ke
+              kampus.
             </p>
           </div>
-          
-          {/* Right Column */}
-          <div className="flex md:justify-end">
-            <div className="flex flex-col space-y-2">
-              <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Tautan</span>
-              <Link href="/explore" className="text-sm hover:text-white transition-colors">
-                Eksplorasi Kos
+          <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-xs text-signal">Jelajahi</span>
+              <Link href="/explore" className="text-paper/85 hover:text-paper hover:underline">
+                Cari kos
               </Link>
-              <a 
-                href="https://instagram.com/adakost_id" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-sm hover:text-white transition-colors"
+              <Link href="/#cara-menilai" className="text-paper/85 hover:text-paper hover:underline">
+                Cara menilai
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-xs text-signal">Ikuti</span>
+              <a
+                href="https://instagram.com/adakost_id"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-paper/85 hover:text-paper hover:underline"
               >
-                Instagram @adakost_id
+                Instagram
               </a>
             </div>
           </div>
         </div>
-        
-        {/* Bottom divider with copyright */}
-        <div className="border-t border-slate-800 pt-6">
-          <div className="text-xs text-slate-600">
-            &copy; {new Date().getFullYear()} Adakos. All rights reserved.
-          </div>
+        <div className="mt-10 flex flex-col gap-1 border-t border-paper/15 pt-6 font-mono text-xs text-paper/60 sm:flex-row sm:justify-between">
+          <span>© {new Date().getFullYear()} Adakos · Dibuat di Makassar</span>
+          {SAMPLE_DATA_MODE && <span>Data kos saat ini adalah data contoh</span>}
         </div>
       </div>
     </footer>

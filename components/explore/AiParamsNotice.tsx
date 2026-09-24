@@ -1,70 +1,80 @@
 // components/explore/AiParamsNotice.tsx
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import type { ClientAiParams } from '@/src/lib/ai-search';
+import { BANJIR_INFO, JALAN_INFO, TIPE_LABEL, type KondisiJalan, type StatusBanjir, type TipeKos } from '@/src/lib/kos-labels';
+import { formatRupiah } from '@/src/lib/format';
 
-const formatRupiah = (value: number) => `Rp ${new Intl.NumberFormat('id-ID').format(value)}`;
-
-function FilterChip({ children }: { children: React.ReactNode }) {
+function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <span className="text-xs bg-white text-blue-700 px-3 py-1 rounded-full border border-blue-200 capitalize font-semibold shadow-sm">
-      {children}
+    <span className="inline-flex items-center gap-1.5 rounded-sm border border-ink/20 bg-white px-2 py-1 text-xs">
+      <span className="font-mono text-muted-ink">{label}</span>
+      <span className="font-semibold">{value}</span>
     </span>
+  );
+}
+
+function ClearLink({ label }: { label: string }) {
+  return (
+    <Link
+      href="/explore"
+      className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold underline-offset-4 hover:underline"
+    >
+      <X size={14} aria-hidden="true" />
+      {label}
+    </Link>
   );
 }
 
 export default function AiParamsNotice({ aiParams }: { aiParams: ClientAiParams }) {
   if (aiParams.fallback) {
     return (
-      <div className="mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Sparkles size={16} className="text-amber-600 shrink-0" />
-          <span>Pencarian AI sedang sibuk atau tidak tersedia. Menampilkan hasil pencarian berbasis kata kunci.</span>
-        </div>
-        <Link
-          href="/explore"
-          className="text-xs font-semibold text-amber-700 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-xl transition-all shrink-0"
-        >
-          Hapus
-        </Link>
+      <div className="mb-6 flex items-center justify-between gap-4 rounded-md border-2 border-ink bg-signal-tint px-4 py-3 text-sm">
+        <p className="flex items-center gap-2">
+          <Sparkles size={16} aria-hidden="true" className="shrink-0" />
+          Pencarian AI sedang tidak tersedia. Hasil di bawah memakai pencarian kata kunci.
+        </p>
+        <ClearLink label="Hapus" />
       </div>
     );
   }
 
-  const hasHarga = aiParams.harga_min !== null || aiParams.harga_max !== null;
+  const hargaText =
+    aiParams.harga_min !== null || aiParams.harga_max !== null
+      ? `${aiParams.harga_min ? formatRupiah(aiParams.harga_min) : 'Rp0'} – ${
+          aiParams.harga_max ? formatRupiah(aiParams.harga_max) : 'tanpa batas'
+        }`
+      : null;
 
   return (
-    <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1 flex items-center gap-1">
-          <Sparkles size={12} className="animate-pulse" />
-          <span>AI Smart Search Parsed Filters</span>
-        </div>
-        <div className="text-sm text-slate-700 font-medium mb-2">Menampilkan hasil pencarian berdasarkan ekstraksi AI:</div>
-        <div className="flex flex-wrap gap-2">
-          {aiParams.tipe && <FilterChip>Tipe: {aiParams.tipe}</FilterChip>}
-          {aiParams.area_slug && <FilterChip>Area: {aiParams.area_slug.replaceAll('-', ' ')}</FilterChip>}
-          {aiParams.status_banjir && (
-            <FilterChip>
-              Banjir: {aiParams.status_banjir === 'aman' ? 'Bebas Banjir' : aiParams.status_banjir.replaceAll('_', ' ')}
-            </FilterChip>
-          )}
-          {aiParams.kondisi_jalan && <FilterChip>Jalan: {aiParams.kondisi_jalan.replaceAll('_', ' ')}</FilterChip>}
-          {hasHarga && (
-            <FilterChip>
-              Harga: {aiParams.harga_min ? formatRupiah(aiParams.harga_min) : '0'} -{' '}
-              {aiParams.harga_max ? formatRupiah(aiParams.harga_max) : '∞'}
-            </FilterChip>
-          )}
-          {aiParams.keyword && <FilterChip>Kata Kunci: &quot;{aiParams.keyword}&quot;</FilterChip>}
-        </div>
+    <div className="mb-6 overflow-hidden rounded-md border-2 border-ink bg-white">
+      <div className="flex items-center justify-between gap-3 bg-ink px-4 py-2 text-paper">
+        <p className="flex items-center gap-2 font-mono text-xs">
+          <Sparkles size={14} aria-hidden="true" className="text-signal" />
+          Tafsiran AI dari pencarianmu
+        </p>
+        <Link href="/explore" className="text-xs font-semibold text-signal underline-offset-4 hover:underline">
+          Hapus filter AI
+        </Link>
       </div>
-      <Link
-        href="/explore"
-        className="text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-100 hover:bg-blue-200 px-4 py-2 rounded-xl transition-all self-start md:self-center"
-      >
-        Hapus Filter AI
-      </Link>
+      <div className="flex flex-wrap gap-2 px-4 py-3">
+        {aiParams.tipe && <Chip label="tipe" value={TIPE_LABEL[aiParams.tipe as TipeKos] ?? aiParams.tipe} />}
+        {aiParams.area_slug && <Chip label="area" value={aiParams.area_slug.replaceAll('-', ' ')} />}
+        {aiParams.status_banjir && (
+          <Chip label="banjir" value={BANJIR_INFO[aiParams.status_banjir as StatusBanjir]?.label ?? aiParams.status_banjir} />
+        )}
+        {aiParams.kondisi_jalan && (
+          <Chip label="jalan" value={JALAN_INFO[aiParams.kondisi_jalan as KondisiJalan]?.label ?? aiParams.kondisi_jalan} />
+        )}
+        {hargaText && <Chip label="harga" value={hargaText} />}
+        {aiParams.keyword && <Chip label="kata kunci" value={`"${aiParams.keyword}"`} />}
+        {!aiParams.tipe &&
+          !aiParams.area_slug &&
+          !aiParams.status_banjir &&
+          !aiParams.kondisi_jalan &&
+          !hargaText &&
+          !aiParams.keyword && <span className="text-sm text-muted-ink">Tidak ada filter khusus, menampilkan semua kos.</span>}
+      </div>
     </div>
   );
 }

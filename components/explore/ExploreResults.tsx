@@ -28,8 +28,8 @@ export default async function ExploreResults({ params }: { params: ExploreParams
   } catch (error) {
     console.error('Gagal memuat daftar kos:', error);
     return (
-      <div role="alert" className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
-        Gagal memuat data kos. Silakan coba lagi beberapa saat lagi.
+      <div role="alert" className="rounded-md border-2 border-ink bg-alert-tint px-4 py-3 text-sm font-medium">
+        Gagal memuat data kos. Coba lagi beberapa saat lagi.
       </div>
     );
   }
@@ -41,25 +41,20 @@ export default async function ExploreResults({ params }: { params: ExploreParams
     <>
       {ai_params && <AiParamsNotice aiParams={ai_params} />}
 
-      <div className="mb-4 text-sm text-slate-500">
-        Menampilkan <span className="font-bold text-slate-900">{data.length}</span>
-        {total > data.length ? ` dari ${total}` : ''} properti
-      </div>
+      <p className="mb-4 font-mono text-xs text-muted-ink">
+        {total > data.length ? `${data.length} dari ${total} kos` : `${data.length} kos`}
+      </p>
 
       {data.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {data.map((kos) => (
               <KosCard key={kos.slug} kos={kos} />
             ))}
           </div>
           {hasMore && (
-            <div className="mt-8 text-center">
-              <Link
-                href={params.loadMoreHref}
-                scroll={false}
-                className="inline-flex items-center px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:border-blue-300 hover:text-blue-600 transition-colors"
-              >
+            <div className="mt-10 flex justify-center">
+              <Link href={params.loadMoreHref} scroll={false} className="btn btn-ghost px-6">
                 Muat lebih banyak
               </Link>
             </div>
@@ -74,17 +69,24 @@ export default async function ExploreResults({ params }: { params: ExploreParams
 
 export function ResultsSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" aria-busy="true">
-      {Array.from({ length: EXPLORE_PAGE_SIZE / 2 }).map((_, idx) => (
-        <div key={idx} className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-pulse">
-          <div className="aspect-video bg-slate-200" />
-          <div className="p-4 space-y-3">
-            <div className="h-5 bg-slate-200 rounded-md w-3/4" />
-            <div className="h-4 bg-slate-200 rounded-md w-1/2" />
-            <div className="h-5 bg-slate-200 rounded-md w-1/3 pt-2" />
+    <div aria-busy="true" aria-label="Memuat daftar kos">
+      <div className="mb-4 h-4 w-24 rounded-sm bg-line-soft" />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: EXPLORE_PAGE_SIZE / 2 }).map((_, idx) => (
+          <div key={idx} className="animate-pulse overflow-hidden rounded-md border-2 border-ink/15 bg-white">
+            <div className="aspect-[4/3] bg-paper-deep" />
+            <div className="space-y-3 p-4">
+              <div className="h-5 w-3/4 rounded-sm bg-paper-deep" />
+              <div className="h-4 w-1/2 rounded-sm bg-paper-deep" />
+              <div className="h-5 w-1/3 rounded-sm bg-paper-deep" />
+              <div className="flex gap-2 pt-2">
+                <div className="h-6 w-24 rounded-sm bg-paper-deep" />
+                <div className="h-6 w-24 rounded-sm bg-paper-deep" />
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

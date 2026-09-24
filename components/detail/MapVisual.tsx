@@ -32,7 +32,7 @@ export default function MapVisual({ lat, lng, namaKos }: MapVisualProps) {
       center={[lat, lng]}
       zoom={15}
       scrollWheelZoom={false}
-      className="w-full h-full rounded-2xl z-0"
+      className="z-0 h-full w-full"
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

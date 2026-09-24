@@ -1,5 +1,4 @@
 // components/layout/SampleDataBanner.tsx
-import { Info } from 'lucide-react';
 import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
 
 export default function SampleDataBanner() {
@@ -8,11 +7,13 @@ export default function SampleDataBanner() {
   }
 
   return (
-    <div role="status" className="bg-amber-50 border-b border-amber-200 text-amber-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-2 text-xs sm:text-sm">
-        <Info size={16} className="shrink-0 text-amber-600" />
+    <div role="status" className="border-b-2 border-ink bg-signal text-ink">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 text-xs sm:px-6 sm:text-sm lg:px-8">
+        <span className="shrink-0 rounded-sm bg-ink px-1.5 py-0.5 font-mono text-[11px] font-medium uppercase tracking-wider text-signal">
+          Uji coba
+        </span>
         <span>
-          Adakos masih dalam tahap uji coba. Seluruh data kos yang ditampilkan adalah <strong>data contoh</strong>, bukan kos sungguhan.
+          Semua kos yang tampil di sini adalah <strong>data contoh</strong>, bukan kos sungguhan.
         </span>
       </div>
     </div>

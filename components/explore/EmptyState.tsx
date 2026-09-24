@@ -1,22 +1,17 @@
 // components/explore/EmptyState.tsx
 import Link from 'next/link';
-import { SearchX } from 'lucide-react';
+import DeadEndSign from '@/components/shared/DeadEndSign';
 
 export default function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-2xl border border-slate-200 border-dashed">
-      <div className="bg-slate-50 p-4 rounded-full mb-4">
-        <SearchX size={32} className="text-slate-400" />
-      </div>
-      <h3 className="text-lg font-bold text-slate-900 mb-2">Kos Tidak Ditemukan</h3>
-      <p className="text-slate-500 max-w-md mb-6">
-        Kami belum memiliki properti yang sesuai dengan kriteria filter Anda saat ini. Coba ubah area atau tipe kos.
+    <div className="flex flex-col items-center rounded-md border-2 border-dashed border-ink/30 bg-white/50 px-4 py-16 text-center">
+      <DeadEndSign />
+      <h3 className="mt-5 font-wide text-2xl">Jalan buntu</h3>
+      <p className="mt-2 max-w-md leading-relaxed text-muted-ink">
+        Belum ada kos yang cocok dengan filter ini. Coba longgarkan filter atau pilih area lain.
       </p>
-      <Link
-        href="/explore"
-        className="px-6 py-2 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
-      >
-        Atur Ulang Filter
+      <Link href="/explore" className="btn btn-ghost mt-6">
+        Atur ulang filter
       </Link>
     </div>
   );

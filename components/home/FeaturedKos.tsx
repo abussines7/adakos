@@ -1,44 +1,34 @@
-import KosCard from '../explore/KosCard';
+// components/home/FeaturedKos.tsx
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import KosCard from '@/components/explore/KosCard';
 import type { KosListRow } from '@/src/lib/kos-queries';
 
-interface FeaturedKosProps {
-  kosList: KosListRow[];
-}
-
-export default function FeaturedKos({ kosList }: FeaturedKosProps) {
+export default function FeaturedKos({ kosList }: { kosList: KosListRow[] }) {
   return (
-    <section className="bg-slate-50 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-end mb-8">
-          <div className="pl-4 border-l-4 border-blue-600">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Pilihan Populer</h2>
-            <p className="text-slate-500">Kos favorit mahasiswa Unhas minggu ini.</p>
-          </div>
-          <Link href="/explore" className="hidden sm:flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700">
-            Lihat Semua <ArrowRight size={16} />
-          </Link>
+    <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="kicker">Baru ditambahkan</p>
+          <h2 className="mt-2 font-wide text-3xl sm:text-4xl">Kos terbaru</h2>
         </div>
-        
-        {kosList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {kosList.map((kos) => (
-              <KosCard key={kos.slug} kos={kos} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-slate-500 bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center">
-            Belum ada kos yang bisa ditampilkan saat ini.
-          </p>
-        )}
-        
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/explore" className="inline-flex items-center gap-2 text-blue-600 font-semibold bg-blue-50 px-6 py-3 rounded-xl">
-            Lihat Semua <ArrowRight size={16} />
-          </Link>
-        </div>
+        <Link href="/explore" className="btn btn-ghost">
+          Lihat semua kos
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </div>
+
+      {kosList.length > 0 ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {kosList.map((kos) => (
+            <KosCard key={kos.slug} kos={kos} />
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-md border-2 border-dashed border-ink/30 p-8 text-center text-muted-ink">
+          Belum ada kos yang bisa ditampilkan saat ini.
+        </p>
+      )}
     </section>
   );
 }

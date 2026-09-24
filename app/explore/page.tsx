@@ -23,22 +23,33 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 border-b border-slate-100 pb-6">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Eksplorasi Kos</h1>
-          <p className="text-slate-500 mt-1">Cari kos impian Anda di sekitar Universitas Hasanuddin.</p>
+    <div className="w-full">
+      <header className="border-b-2 border-ink bg-map-grid">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8">
+          <div>
+            <p className="kicker">Katalog kos · sekitar Unhas</p>
+            <h1 className="mt-2 font-wide text-4xl sm:text-5xl">Eksplorasi kos</h1>
+            <p className="mt-2 max-w-xl text-ink-soft">
+              Saring berdasarkan area, tipe, dan kondisi akses, atau tanya AI dengan bahasa sehari-hari.
+            </p>
+          </div>
+          {/* key: form di-reset saat query AI di URL berubah (mis. setelah "Hapus filter AI") */}
+          <AiSearchForm key={params.aiQuery} initialQuery={params.aiQuery} />
         </div>
-        {/* key: form di-reset saat query AI di URL berubah (mis. setelah "Hapus Filter AI") */}
-        <AiSearchForm key={params.aiQuery} initialQuery={params.aiQuery} />
-      </div>
+      </header>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-64 shrink-0">
-          <FilterSidebar areas={areas} currentArea={params.currentArea} currentTipe={params.currentTipe} />
-        </div>
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row lg:px-8">
+        <aside className="w-full shrink-0 md:w-72">
+          <FilterSidebar
+            areas={areas}
+            currentArea={params.currentArea}
+            currentTipe={params.currentTipe}
+            onlyBebasBanjir={params.onlyBebasBanjir}
+            onlyJalanMulus={params.onlyJalanMulus}
+          />
+        </aside>
 
-        <div className="flex-grow">
+        <div className="min-w-0 flex-1">
           {/* key tanpa limit: ganti filter menampilkan skeleton, "muat lebih banyak" tidak */}
           <Suspense key={params.resultsKey} fallback={<ResultsSkeleton />}>
             <ExploreResults params={params} />

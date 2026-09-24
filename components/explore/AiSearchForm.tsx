@@ -17,22 +17,19 @@ export default function AiSearchForm({ initialQuery }: { initialQuery: string })
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 max-w-md w-full">
+    <form onSubmit={handleSubmit} className="flex w-full max-w-lg gap-2">
       <input
         type="text"
         value={query}
         maxLength={MAX_QUERY_LENGTH}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Cari dengan AI (misal: kos putri jalan bung)"
+        placeholder="kos putri jalan Bung, bebas banjir"
         aria-label="Pencarian AI"
-        className="flex-grow px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+        className="field flex-1"
       />
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center gap-1.5 cursor-pointer shrink-0 shadow-sm"
-      >
-        <Sparkles size={14} className="animate-pulse" />
-        <span>AI Search</span>
+      <button type="submit" className="btn btn-signal shrink-0">
+        <Sparkles size={15} aria-hidden="true" />
+        Tanya AI
       </button>
     </form>
   );

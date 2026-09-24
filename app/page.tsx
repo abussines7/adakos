@@ -3,6 +3,7 @@ import { listPublishedKos, type KosListRow } from '@/src/lib/kos-queries';
 import { getCachedAreas, type AreaOption } from '@/src/lib/areas';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedKos from '@/components/home/FeaturedKos';
+import HowWeRate from '@/components/home/HowWeRate';
 
 export const revalidate = 60;
 
@@ -26,6 +27,7 @@ export default async function Home() {
     <div className="flex flex-col">
       <HeroSection areas={areas} />
       <FeaturedKos kosList={kosList} />
+      <HowWeRate />
     </div>
   );
 }

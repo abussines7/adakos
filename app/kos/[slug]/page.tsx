@@ -1,22 +1,22 @@
 // app/kos/[slug]/page.tsx
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Check, MapPin } from 'lucide-react';
 import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
 import { KosProperty } from '@/data/types';
-import { notFound } from 'next/navigation';
 import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
+import { TIPE_LABEL } from '@/src/lib/kos-labels';
+import { formatRupiah } from '@/src/lib/format';
 import ImageGallery from '@/components/detail/ImageGallery';
+import InfoBoard from '@/components/detail/InfoBoard';
 import AccessibilitySection from '@/components/detail/AccessibilitySection';
 import KosMap from '@/components/detail/KosMap';
 import WhatsAppCTA from '@/components/detail/WhatsAppCTA';
-import IconLabel from '@/components/shared/IconLabel';
-import { MapPin, CheckCircle2 } from 'lucide-react';
 
 export const revalidate = 300;
 
 type KosPageProps = { params: Promise<{ slug: string }> };
-
-const formatRupiah = (value: number) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 
 export async function generateMetadata({ params }: KosPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -56,7 +56,6 @@ export default async function KosDetail({ params }: KosPageProps) {
     notFound();
   }
 
-  // Petakan ke format KosProperty agar komponen UI tidak break
   const kos: KosProperty = {
     id: result.slug,
     nama: result.nama,
@@ -84,45 +83,91 @@ export default async function KosDetail({ params }: KosPageProps) {
     kontak_pemilik: result.pemilik && !SAMPLE_DATA_MODE ? result.pemilik.telepon : '',
   };
 
-  const hargaFormatted = formatRupiah(kos.harga_bulanan);
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-      <ImageGallery images={kos.foto} namaKos={kos.nama} />
-      
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-grow">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 text-slate-500 mb-2">
-              <MapPin size={16} /> <span>{kos.area}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{kos.nama}</h1>
-            <div className="text-2xl font-bold text-blue-600">
-              {hargaFormatted} <span className="text-base font-normal text-slate-500">/ bulan</span>
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-ink">
+        <Link href="/explore" className="hover:text-ink hover:underline">
+          Eksplorasi
+        </Link>
+        {result.area && (
+          <>
+            <span aria-hidden="true">/</span>
+            <Link href={`/explore?area=${encodeURIComponent(result.area.slug)}`} className="hover:text-ink hover:underline">
+              {result.area.nama}
+            </Link>
+          </>
+        )}
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" className="text-ink">
+          {kos.nama}
+        </span>
+      </nav>
 
-          <section className="mb-8">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Fasilitas Internal</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-white p-6 rounded-2xl border border-slate-200">
-              {kos.fasilitas_internal.map((fasilitas, idx) => (
-                <IconLabel key={idx} icon={CheckCircle2} text={fasilitas} className="text-slate-700" />
-              ))}
+      <ImageGallery images={kos.foto} namaKos={kos.nama} />
+
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-12">
+          <header>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-sm bg-ink px-2 py-1 font-mono text-[11px] font-medium uppercase tracking-wider text-paper">
+                Kos {TIPE_LABEL[kos.tipe]}
+              </span>
+              {kos.area && (
+                <span className="flex items-center gap-1 text-sm text-muted-ink">
+                  <MapPin size={15} aria-hidden="true" />
+                  {kos.area}
+                </span>
+              )}
             </div>
-          </section>
+            <h1 className="mt-3 font-wide text-3xl leading-tight sm:text-[2.6rem]">{kos.nama}</h1>
+            <p className="mt-3 font-mono text-2xl font-semibold">
+              {formatRupiah(kos.harga_bulanan)}
+              <span className="text-base font-normal text-muted-ink">/bulan</span>
+            </p>
+            <div className="mt-6">
+              <InfoBoard
+                statusBanjir={kos.status_banjir}
+                kondisiJalan={kos.kondisi_jalan}
+                estimasiKeKampus={kos.rute_kampus[0]?.estimasi_waktu}
+                aksesKendaraan={kos.akses_kendaraan}
+              />
+            </div>
+          </header>
 
           <AccessibilitySection kos={kos} />
+
+          <section aria-labelledby="fasilitas-heading">
+            <h2 id="fasilitas-heading" className="font-wide text-2xl">
+              Fasilitas kamar
+            </h2>
+            {kos.fasilitas_internal.length > 0 ? (
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {kos.fasilitas_internal.map((fasilitas) => (
+                  <li
+                    key={fasilitas}
+                    className="flex items-center gap-2 rounded-sm border-2 border-ink/15 bg-white px-3 py-2 text-sm font-semibold"
+                  >
+                    <Check size={15} aria-hidden="true" className="text-sign" />
+                    {fasilitas}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm text-muted-ink">Fasilitas kamar belum dicatat.</p>
+            )}
+          </section>
+
           <KosMap lat={kos.koordinat.lat} lng={kos.koordinat.lng} namaKos={kos.nama} />
         </div>
-        
-        {/* Sidebar — CTA WhatsApp */}
-        <div className="w-full lg:w-80 shrink-0">
+
+        <aside>
           <WhatsAppCTA
             kosId={kos.id}
             kosNama={kos.nama}
             kontakPemilik={kos.kontak_pemilik}
+            hargaBulanan={kos.harga_bulanan}
           />
-        </div>
+        </aside>
       </div>
     </div>
   );

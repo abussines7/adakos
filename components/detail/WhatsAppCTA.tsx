@@ -4,62 +4,67 @@
 import { MessageCircle } from 'lucide-react';
 import { buildWhatsAppUrl, trackWhatsAppClick } from '@/utils/whatsapp';
 import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
+import { formatRupiah } from '@/src/lib/format';
 
 interface WhatsAppCTAProps {
   kosId: string;
   kosNama: string;
   kontakPemilik: string;
+  hargaBulanan: number;
 }
 
-export default function WhatsAppCTA({ kosId, kosNama, kontakPemilik }: WhatsAppCTAProps) {
-  if (SAMPLE_DATA_MODE) {
-    return (
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 sticky top-24">
-        <h3 className="font-bold text-lg text-slate-900 mb-4">Hubungi Pemilik</h3>
-        <p className="text-sm text-slate-500 mb-4">
-          Kos ini adalah data contoh, sehingga kontak pemilik belum tersedia.
-        </p>
-        <div className="w-full text-center text-sm py-3 px-6 bg-slate-100 text-slate-400 font-semibold rounded-xl border border-dashed border-slate-200">
-          Kontak Belum Tersedia
-        </div>
-      </div>
-    );
-  }
+function Unavailable({ message }: { message: string }) {
+  return (
+    <>
+      <p className="text-sm leading-relaxed text-ink-soft">{message}</p>
+      <p className="mt-4 rounded-sm border-2 border-dashed border-ink/30 px-4 py-3 text-center text-sm font-semibold text-muted-ink">
+        Kontak belum tersedia
+      </p>
+    </>
+  );
+}
 
-  let whatsappUrl = '#';
-  try {
-    whatsappUrl = buildWhatsAppUrl(kontakPemilik, kosNama);
-  } catch (error) {
-    console.error('Gagal membuat WhatsApp URL:', error);
+export default function WhatsAppCTA({ kosId, kosNama, kontakPemilik, hargaBulanan }: WhatsAppCTAProps) {
+  let whatsappUrl: string | null = null;
+  if (!SAMPLE_DATA_MODE) {
+    try {
+      whatsappUrl = buildWhatsAppUrl(kontakPemilik, kosNama);
+    } catch (error) {
+      console.error('Gagal membuat WhatsApp URL:', error);
+    }
   }
-
-  const handleTrackClick = () => {
-    trackWhatsAppClick(kosId, kosNama);
-  };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 sticky top-24">
-      <h3 className="font-bold text-lg text-slate-900 mb-4">Hubungi Pemilik</h3>
-      <p className="text-sm text-slate-500 mb-4">
-        Tertarik dengan kos ini? Hubungi pemilik langsung via WhatsApp.
-      </p>
-      {whatsappUrl !== '#' ? (
-        <a
-          id="whatsapp-cta"
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleTrackClick}
-          className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 text-center"
-        >
-          <MessageCircle size={20} />
-          <span>Chat via WhatsApp</span>
-        </a>
-      ) : (
-        <div className="w-full text-center text-sm py-3 px-6 bg-slate-100 text-slate-400 font-semibold rounded-xl border border-dashed border-slate-200">
-          Kontak Tidak Tersedia
-        </div>
-      )}
+    <div className="panel overflow-hidden lg:sticky lg:top-24">
+      <div className="border-b-2 border-ink bg-paper-deep px-5 py-4">
+        <p className="font-mono text-xs text-muted-ink">Harga per bulan</p>
+        <p className="mt-1 font-mono text-2xl font-semibold">{formatRupiah(hargaBulanan)}</p>
+      </div>
+      <div className="p-5">
+        <h2 className="mb-2 font-bold">Hubungi pemilik</h2>
+        {SAMPLE_DATA_MODE ? (
+          <Unavailable message="Kos ini adalah data contoh, jadi belum ada pemilik yang bisa dihubungi." />
+        ) : whatsappUrl ? (
+          <>
+            <p className="text-sm leading-relaxed text-ink-soft">
+              Tanyakan ketersediaan kamar atau atur jadwal survei langsung lewat WhatsApp.
+            </p>
+            <a
+              id="whatsapp-cta"
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackWhatsAppClick(kosId, kosNama)}
+              className="btn mt-4 w-full bg-sign text-white hover:bg-sign-deep"
+            >
+              <MessageCircle size={18} aria-hidden="true" />
+              Chat via WhatsApp
+            </a>
+          </>
+        ) : (
+          <Unavailable message="Nomor pemilik belum tercatat untuk kos ini." />
+        )}
+      </div>
     </div>
   );
 }

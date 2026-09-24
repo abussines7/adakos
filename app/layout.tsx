@@ -1,6 +1,6 @@
-// src/app/layout.tsx
+// app/layout.tsx
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Archivo, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
@@ -9,9 +9,11 @@ import SampleDataBanner from "@/components/layout/SampleDataBanner";
 import { cn } from "@/src/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/src/lib/site-config";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
-
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
+// Plus Jakarta Sans (dirancang untuk identitas kota Jakarta) untuk teks,
+// Archivo lebar untuk judul ala rambu, JetBrains Mono untuk harga dan data.
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+const archivo = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-archivo" });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains" });
 
 const SITE_DESCRIPTION = "E-Katalog indekos transparan di sekitar Universitas Hasanuddin Makassar.";
 
@@ -36,13 +38,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={cn("scroll-smooth", "font-sans", inter.variable)}>
-      <body className={`${plusJakarta.className} min-h-screen flex flex-col text-slate-900 bg-slate-50 antialiased`}>
+    <html
+      lang="id"
+      className={cn("scroll-smooth scroll-pt-24", jakarta.variable, archivo.variable, jetbrains.variable)}
+    >
+      <body className="min-h-screen flex flex-col bg-paper text-ink antialiased font-sans">
         <Navbar />
         <SampleDataBanner />
-        <main className="flex-grow flex flex-col">
-          {children}
-        </main>
+        <main className="flex-grow flex flex-col">{children}</main>
         <Footer />
         {/* Vercel Analytics — auto-track pageviews + custom events (whatsapp_click) */}
         <Analytics />
