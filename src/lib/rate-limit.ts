@@ -1,3 +1,7 @@
+// Rate limit in-memory: hanya berlaku per instance server. Di serverless
+// (Vercel) tiap instance punya Map sendiri, jadi ini lapisan pertama saja.
+// Untuk batas yang konsisten lintas instance, ganti dengan store bersama
+// (mis. Upstash Redis) tanpa mengubah signature checkRateLimit.
 const buckets = new Map<string, { count: number; resetAt: number }>();
 let lastCleanup = Date.now();
 const CLEANUP_INTERVAL_MS = 300_000; // Bersihkan Map setiap 5 menit

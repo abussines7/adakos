@@ -30,6 +30,14 @@ function isOneOf<T extends readonly string[]>(value: unknown, allowed: T): value
   return typeof value === 'string' && (allowed as readonly string[]).includes(value);
 }
 
+// Batas atas harga: menjaga nilai tetap dalam rentang kolom integer Postgres.
+const MAX_HARGA = 100_000_000;
+
+function clampHarga(value: unknown): number {
+  const parsed = Math.floor(Number(value) || 0);
+  return Math.min(Math.max(0, parsed), MAX_HARGA);
+}
+
 export function sanitizeUserQuery(raw: unknown): string {
   if (typeof raw !== 'string') {
     throw new Error('Query string is required');
@@ -64,8 +72,8 @@ export function validateAiParams(raw: unknown, validAreaSlugs: Set<string>): Par
     area_slug,
     kondisi_jalan,
     status_banjir,
-    harga_min: Math.max(0, Number(p.harga_min) || 0),
-    harga_max: Math.max(0, Number(p.harga_max) || 0),
+    harga_min: clampHarga(p.harga_min),
+    harga_max: clampHarga(p.harga_max),
     keyword: typeof p.keyword === 'string' ? p.keyword.slice(0, 100) : '',
   };
 }
@@ -114,21 +122,4 @@ ATURAN MAPPING KETAT:
 6. keyword:
    - Kata kunci spesifik seperti "wifi", "ac", "kamar mandi dalam", "dekat gerbang utama".
    - Kosongkan (string kosong "") jika tidak ada kata kunci tambahan.`;
-}
-
-export function isGeminiServiceError(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const message = error.message.toLowerCase();
-  return (
-    message.includes('fetch') ||
-    message.includes('network') ||
-    message.includes('quota') ||
-    message.includes('rate') ||
-    message.includes('429') ||
-    message.includes('503') ||
-    message.includes('google')
-  );
 }
