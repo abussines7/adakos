@@ -1,0 +1,722 @@
+{
+  "id": "1a2921f7-3996-4775-ac3b-f005df3710af",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.area": {
+      "name": "area",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "area_nama_unique": {
+          "name": "area_nama_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nama"
+          ]
+        },
+        "area_slug_unique": {
+          "name": "area_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fasilitas_internal": {
+      "name": "fasilitas_internal",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "fasilitas_internal_nama_unique": {
+          "name": "fasilitas_internal_nama_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nama"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fasilitas_sekitar": {
+      "name": "fasilitas_sekitar",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kos_id": {
+          "name": "kos_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jarak_meter": {
+          "name": "jarak_meter",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_fas_sekitar_kos": {
+          "name": "idx_fas_sekitar_kos",
+          "columns": [
+            {
+              "expression": "kos_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "fasilitas_sekitar_kos_id_kos_id_fk": {
+          "name": "fasilitas_sekitar_kos_id_kos_id_fk",
+          "tableFrom": "fasilitas_sekitar",
+          "tableTo": "kos",
+          "columnsFrom": [
+            "kos_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kos": {
+      "name": "kos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipe": {
+          "name": "tipe",
+          "type": "tipe_kos",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "area_id": {
+          "name": "area_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "harga_bulanan": {
+          "name": "harga_bulanan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kondisi_jalan": {
+          "name": "kondisi_jalan",
+          "type": "kondisi_jalan",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "akses_kendaraan": {
+          "name": "akses_kendaraan",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_banjir": {
+          "name": "status_banjir",
+          "type": "status_banjir",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pemilik_id": {
+          "name": "pemilik_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_published": {
+          "name": "is_published",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_kos_area": {
+          "name": "idx_kos_area",
+          "columns": [
+            {
+              "expression": "area_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_kos_tipe": {
+          "name": "idx_kos_tipe",
+          "columns": [
+            {
+              "expression": "tipe",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_kos_harga": {
+          "name": "idx_kos_harga",
+          "columns": [
+            {
+              "expression": "harga_bulanan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_kos_banjir": {
+          "name": "idx_kos_banjir",
+          "columns": [
+            {
+              "expression": "status_banjir",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_kos_area_tipe": {
+          "name": "idx_kos_area_tipe",
+          "columns": [
+            {
+              "expression": "area_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tipe",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "kos_area_id_area_id_fk": {
+          "name": "kos_area_id_area_id_fk",
+          "tableFrom": "kos",
+          "tableTo": "area",
+          "columnsFrom": [
+            "area_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "kos_pemilik_id_pemilik_id_fk": {
+          "name": "kos_pemilik_id_pemilik_id_fk",
+          "tableFrom": "kos",
+          "tableTo": "pemilik",
+          "columnsFrom": [
+            "pemilik_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "kos_slug_unique": {
+          "name": "kos_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kos_fasilitas_internal": {
+      "name": "kos_fasilitas_internal",
+      "schema": "",
+      "columns": {
+        "kos_id": {
+          "name": "kos_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fasilitas_id": {
+          "name": "fasilitas_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "kos_fasilitas_internal_kos_id_kos_id_fk": {
+          "name": "kos_fasilitas_internal_kos_id_kos_id_fk",
+          "tableFrom": "kos_fasilitas_internal",
+          "tableTo": "kos",
+          "columnsFrom": [
+            "kos_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "kos_fasilitas_internal_fasilitas_id_fasilitas_internal_id_fk": {
+          "name": "kos_fasilitas_internal_fasilitas_id_fasilitas_internal_id_fk",
+          "tableFrom": "kos_fasilitas_internal",
+          "tableTo": "fasilitas_internal",
+          "columnsFrom": [
+            "fasilitas_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "kos_fasilitas_internal_kos_id_fasilitas_id_pk": {
+          "name": "kos_fasilitas_internal_kos_id_fasilitas_id_pk",
+          "columns": [
+            "kos_id",
+            "fasilitas_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kos_foto": {
+      "name": "kos_foto",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kos_id": {
+          "name": "kos_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urutan": {
+          "name": "urutan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "alt_text": {
+          "name": "alt_text",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_foto_kos": {
+          "name": "idx_foto_kos",
+          "columns": [
+            {
+              "expression": "kos_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_foto_urutan": {
+          "name": "idx_foto_urutan",
+          "columns": [
+            {
+              "expression": "kos_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "urutan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "kos_foto_kos_id_kos_id_fk": {
+          "name": "kos_foto_kos_id_kos_id_fk",
+          "tableFrom": "kos_foto",
+          "tableTo": "kos",
+          "columnsFrom": [
+            "kos_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pemilik": {
+      "name": "pemilik",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nama": {
+          "name": "nama",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "telepon": {
+          "name": "telepon",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "pemilik_telepon_unique": {
+          "name": "pemilik_telepon_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "telepon"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rute_kampus": {
+      "name": "rute_kampus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "kos_id": {
+          "name": "kos_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rute": {
+          "name": "rute",
+          "type": "varchar(300)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estimasi_waktu": {
+          "name": "estimasi_waktu",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urutan": {
+          "name": "urutan",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "idx_rute_kos": {
+          "name": "idx_rute_kos",
+          "columns": [
+            {
+              "expression": "kos_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "rute_kampus_kos_id_kos_id_fk": {
+          "name": "rute_kampus_kos_id_kos_id_fk",
+          "tableFrom": "rute_kampus",
+          "tableTo": "kos",
+          "columnsFrom": [
+            "kos_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.kondisi_jalan": {
+      "name": "kondisi_jalan",
+      "schema": "public",
+      "values": [
+        "mulus",
+        "cukup_baik",
+        "rusak"
+      ]
+    },
+    "public.status_banjir": {
+      "name": "status_banjir",
+      "schema": "public",
+      "values": [
+        "aman",
+        "rawan",
+        "kadang_tergenang"
+      ]
+    },
+    "public.tipe_kos": {
+      "name": "tipe_kos",
+      "schema": "public",
+      "values": [
+        "putra",
+        "putri",
+        "campur"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

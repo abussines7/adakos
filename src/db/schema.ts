@@ -55,13 +55,13 @@ export const kos = pgTable('kos', {
   is_published: boolean('is_published').default(true).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => ({
-  areaIdx: index('idx_kos_area').on(table.area_id),
-  tipeIdx: index('idx_kos_tipe').on(table.tipe),
-  hargaIdx: index('idx_kos_harga').on(table.harga_bulanan),
-  banjirIdx: index('idx_kos_banjir').on(table.status_banjir),
-  areaTipeIdx: index('idx_kos_area_tipe').on(table.area_id, table.tipe),
-}));
+}, (table) => [
+  index('idx_kos_area').on(table.area_id),
+  index('idx_kos_tipe').on(table.tipe),
+  index('idx_kos_harga').on(table.harga_bulanan),
+  index('idx_kos_banjir').on(table.status_banjir),
+  index('idx_kos_area_tipe').on(table.area_id, table.tipe),
+]);
 
 export const kosFoto = pgTable('kos_foto', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -70,10 +70,10 @@ export const kosFoto = pgTable('kos_foto', {
   urutan: integer('urutan').default(0).notNull(),
   alt_text: varchar('alt_text', { length: 200 }),
   created_at: timestamp('created_at').defaultNow().notNull(),
-}, (table) => ({
-  kosIdx: index('idx_foto_kos').on(table.kos_id),
-  urutanIdx: index('idx_foto_urutan').on(table.kos_id, table.urutan),
-}));
+}, (table) => [
+  index('idx_foto_kos').on(table.kos_id),
+  index('idx_foto_urutan').on(table.kos_id, table.urutan),
+]);
 
 export const fasilitasInternal = pgTable('fasilitas_internal', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -83,18 +83,18 @@ export const fasilitasInternal = pgTable('fasilitas_internal', {
 export const kosFasilitasInternal = pgTable('kos_fasilitas_internal', {
   kos_id: uuid('kos_id').references(() => kos.id, { onDelete: 'cascade' }).notNull(),
   fasilitas_id: uuid('fasilitas_id').references(() => fasilitasInternal.id, { onDelete: 'cascade' }).notNull(),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.kos_id, table.fasilitas_id] }),
-}));
+}, (table) => [
+  primaryKey({ columns: [table.kos_id, table.fasilitas_id] }),
+]);
 
 export const fasilitasSekitar = pgTable('fasilitas_sekitar', {
   id: uuid('id').defaultRandom().primaryKey(),
   kos_id: uuid('kos_id').references(() => kos.id, { onDelete: 'cascade' }).notNull(),
   nama: varchar('nama', { length: 200 }).notNull(),
   jarak_meter: integer('jarak_meter').notNull(),
-}, (table) => ({
-  kosIdx: index('idx_fas_sekitar_kos').on(table.kos_id),
-}));
+}, (table) => [
+  index('idx_fas_sekitar_kos').on(table.kos_id),
+]);
 
 export const ruteKampus = pgTable('rute_kampus', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -102,9 +102,9 @@ export const ruteKampus = pgTable('rute_kampus', {
   rute: varchar('rute', { length: 300 }).notNull(),
   estimasi_waktu: varchar('estimasi_waktu', { length: 100 }).notNull(),
   urutan: integer('urutan').default(0).notNull(),
-}, (table) => ({
-  kosIdx: index('idx_rute_kos').on(table.kos_id),
-}));
+}, (table) => [
+  index('idx_rute_kos').on(table.kos_id),
+]);
 
 // ==========================================
 // RELATIONS
