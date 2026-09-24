@@ -1,3 +1,5 @@
+> **Catatan:** dokumen ini adalah rancangan awal MVP (arsip). Sebagian isinya sudah tidak berlaku: proyek kini memakai Next.js 16, Tailwind CSS 4, dan database Postgres (Drizzle), bukan mock data statis. Lihat README.md untuk kondisi terbaru.
+
 Adakos — Final MVP Implementation Blueprint
 Platform e-katalog indekos area Universitas Hasanuddin (Unhas). Fokus 100% pada Front-End & UI/UX statis dengan mock data.
 
