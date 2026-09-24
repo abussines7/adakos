@@ -4,6 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
+import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,7 +49,8 @@ export async function GET(request: Request, { params }: RouteParams) {
         lat: result.latitude,
         lng: result.longitude,
       },
-      pemilik: result.pemilik ? {
+      // Nomor pemilik pada data contoh tidak diekspos (bisa milik orang sungguhan).
+      pemilik: result.pemilik && !SAMPLE_DATA_MODE ? {
         nama: result.pemilik.nama,
         telepon: result.pemilik.telepon,
       } : null,

@@ -13,7 +13,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching areas:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Internal Server Error', message: 'Gagal memuat daftar area' },
       { status: 500 }
     );
   }

@@ -5,6 +5,7 @@ export const revalidate = 300;
 import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
 import { KosProperty } from '@/data/types';
 import { notFound } from 'next/navigation';
+import { SAMPLE_DATA_MODE } from '@/src/lib/site-config';
 import ImageGallery from '@/components/detail/ImageGallery';
 import AccessibilitySection from '@/components/detail/AccessibilitySection';
 import KosMap from '@/components/detail/KosMap';
@@ -52,7 +53,8 @@ export default async function KosDetail({ params }: { params: Promise<{ id: stri
       lat: result.latitude,
       lng: result.longitude,
     },
-    kontak_pemilik: result.pemilik ? result.pemilik.telepon : '',
+    // Props client component ikut terkirim ke browser; jangan kirim nomor data contoh.
+    kontak_pemilik: result.pemilik && !SAMPLE_DATA_MODE ? result.pemilik.telepon : '',
   };
 
   const hargaFormatted = new Intl.NumberFormat('id-ID', {
