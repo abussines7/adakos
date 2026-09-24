@@ -14,6 +14,7 @@ import {
   ilike,
   sql,
   SQL,
+  asc,
   desc,
   or,
   exists,
@@ -60,8 +61,38 @@ const STOP_WORDS = new Set([
   'bebas',
 ]);
 
+const MAX_KEYWORD_LENGTH = 100;
+const MAX_FALLBACK_TOKENS = 8;
+const MAX_HARGA = 100_000_000;
+const AREA_SLUG_PATTERN = /^[a-z0-9-]{1,100}$/;
+
+const TIPE_VALUES = ['putra', 'putri', 'campur'] as const;
+const BANJIR_VALUES = ['aman', 'rawan', 'kadang_tergenang'] as const;
+const JALAN_VALUES = ['mulus', 'cukup_baik', 'rusak'] as const;
+
+function isOneOf<T extends readonly string[]>(value: string | null, allowed: T): value is T[number] {
+  return value !== null && (allowed as readonly string[]).includes(value);
+}
+
+function parseHarga(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed) || parsed <= 0) {
+    return undefined;
+  }
+  return Math.min(parsed, MAX_HARGA);
+}
+
+// Escape karakter wildcard LIKE (% dan _) serta backslash (escape default
+// Postgres) agar input user dicocokkan secara literal.
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
 function keywordMatchCondition(keyword: string): SQL {
-  const pattern = `%${keyword}%`;
+  const pattern = `%${escapeLikePattern(keyword)}%`;
 
   return or(
     ilike(kos.nama, pattern),
@@ -170,13 +201,20 @@ export async function listPublishedKos(
           nama: area.nama,
           slug: area.slug,
         },
-        fotoUtama: kosFoto.url,
+        // Subquery (bukan join) agar satu kos selalu satu baris, walau ada
+        // beberapa foto dengan urutan sama atau tidak ada foto berurutan 0.
+        fotoUtama: sql<string | null>`(
+          select ${kosFoto.url} from ${kosFoto}
+          where ${kosFoto.kos_id} = ${kos.id}
+          order by ${kosFoto.urutan} asc, ${kosFoto.id} asc
+          limit 1
+        )`,
       })
       .from(kos)
       .leftJoin(area, eq(kos.area_id, area.id))
-      .leftJoin(kosFoto, and(eq(kos.id, kosFoto.kos_id), eq(kosFoto.urutan, 0)))
       .where(and(...conditions))
-      .orderBy(desc(kos.created_at))
+      // id sebagai pembeda agar urutan stabil antarhalaman (paginasi).
+      .orderBy(desc(kos.created_at), asc(kos.id))
       .limit(pagination.limit)
       .offset(pagination.offset),
 
@@ -197,38 +235,30 @@ export function parseKosFiltersFromSearchParams(searchParams: URLSearchParams): 
   const filters: KosListFilters = {};
 
   const tipe = searchParams.get('tipe');
-  if (tipe && ['putra', 'putri', 'campur'].includes(tipe)) {
-    filters.tipe = tipe as KosListFilters['tipe'];
+  if (isOneOf(tipe, TIPE_VALUES)) {
+    filters.tipe = tipe;
   }
 
   const statusBanjir = searchParams.get('status_banjir');
-  if (statusBanjir && ['aman', 'rawan', 'kadang_tergenang'].includes(statusBanjir)) {
-    filters.statusBanjir = statusBanjir as KosListFilters['statusBanjir'];
+  if (isOneOf(statusBanjir, BANJIR_VALUES)) {
+    filters.statusBanjir = statusBanjir;
   }
 
-  const hargaMin = searchParams.get('harga_min');
-  if (hargaMin) {
-    const parsed = parseInt(hargaMin, 10);
-    if (!isNaN(parsed)) {
-      filters.hargaMin = parsed;
-    }
+  const kondisiJalan = searchParams.get('kondisi_jalan');
+  if (isOneOf(kondisiJalan, JALAN_VALUES)) {
+    filters.kondisiJalan = kondisiJalan;
   }
 
-  const hargaMax = searchParams.get('harga_max');
-  if (hargaMax) {
-    const parsed = parseInt(hargaMax, 10);
-    if (!isNaN(parsed)) {
-      filters.hargaMax = parsed;
-    }
-  }
+  filters.hargaMin = parseHarga(searchParams.get('harga_min'));
+  filters.hargaMax = parseHarga(searchParams.get('harga_max'));
 
-  const q = searchParams.get('q');
+  const q = searchParams.get('q')?.trim();
   if (q) {
-    filters.keyword = q;
+    filters.keyword = q.slice(0, MAX_KEYWORD_LENGTH);
   }
 
   const areaSlug = searchParams.get('area');
-  if (areaSlug) {
+  if (areaSlug && AREA_SLUG_PATTERN.test(areaSlug)) {
     filters.areaSlug = areaSlug;
   }
 
@@ -270,11 +300,16 @@ export function aiParamsToFilters(params: ParsedAiParams): KosListFilters {
 }
 
 export function tokenizeFallbackQuery(queryText: string): string[] {
-  return queryText
+  // Tanda baca diganti spasi (bukan dihapus) agar "kera-kera" tidak
+  // menyatu menjadi "kerakera".
+  const tokens = queryText
     .toLowerCase()
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, '')
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'\\]/g, ' ')
     .split(/\s+/)
     .filter((token) => token.length > 1 && !STOP_WORDS.has(token));
+
+  // Setiap token menjadi satu subquery EXISTS; batasi jumlahnya.
+  return Array.from(new Set(tokens)).slice(0, MAX_FALLBACK_TOKENS);
 }
 
 export async function fallbackKeywordSearch(
