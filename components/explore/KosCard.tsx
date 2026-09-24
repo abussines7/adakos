@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Badge from '../shared/Badge';
 import { ImageOff, MapPin } from 'lucide-react';
-import { KosProperty } from '@/data/types';
+import type { KosListRow } from '@/src/lib/kos-queries';
 
 const BANJIR_BADGE = {
   aman: { variant: 'success', label: 'Aman Banjir' },
@@ -11,9 +11,9 @@ const BANJIR_BADGE = {
   rawan: { variant: 'danger', label: 'Rawan Banjir' },
 } as const;
 
-export default function KosCard({ kos }: { kos: KosProperty }) {
+export default function KosCard({ kos }: { kos: KosListRow }) {
   const banjirBadge = BANJIR_BADGE[kos.status_banjir];
-  const fotoUtama = kos.foto[0];
+  const fotoUtama = kos.foto_utama;
 
   // Format harga ke Rupiah
   const hargaFormatted = new Intl.NumberFormat('id-ID', {
@@ -23,7 +23,7 @@ export default function KosCard({ kos }: { kos: KosProperty }) {
   }).format(kos.harga_bulanan);
 
   return (
-    <Link href={`/kos/${kos.id}`} className="group block bg-white rounded-2xl border border-slate-200 hover:border-blue-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5">
+    <Link href={`/kos/${kos.slug}`} className="group block bg-white rounded-2xl border border-slate-200 hover:border-blue-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5">
       {/* Thumbnail Image */}
       <div className="aspect-video relative overflow-hidden bg-slate-100">
         {fotoUtama ? (
@@ -55,7 +55,7 @@ export default function KosCard({ kos }: { kos: KosProperty }) {
         <h3 className="font-bold text-lg text-slate-900 mb-1">{kos.nama}</h3>
         <div className="flex items-center gap-1 text-slate-500 mb-3">
           <MapPin size={14} />
-          <span className="text-sm">{kos.area}</span>
+          <span className="text-sm">{kos.area?.nama}</span>
         </div>
         <div className="font-bold text-blue-600 text-lg mb-3">
           {hargaFormatted} <span className="text-sm font-normal text-slate-500">/ bulan</span>

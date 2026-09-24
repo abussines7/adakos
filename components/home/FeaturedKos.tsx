@@ -1,10 +1,10 @@
 import KosCard from '../explore/KosCard';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { KosProperty } from '@/data/types';
+import type { KosListRow } from '@/src/lib/kos-queries';
 
 interface FeaturedKosProps {
-  kosList: KosProperty[];
+  kosList: KosListRow[];
 }
 
 export default function FeaturedKos({ kosList }: FeaturedKosProps) {
@@ -21,11 +21,17 @@ export default function FeaturedKos({ kosList }: FeaturedKosProps) {
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {kosList.map((kos) => (
-            <KosCard key={kos.id} kos={kos} />
-          ))}
-        </div>
+        {kosList.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {kosList.map((kos) => (
+              <KosCard key={kos.slug} kos={kos} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-slate-500 bg-white border border-dashed border-slate-200 rounded-2xl p-8 text-center">
+            Belum ada kos yang bisa ditampilkan saat ini.
+          </p>
+        )}
         
         <div className="mt-8 text-center sm:hidden">
           <Link href="/explore" className="inline-flex items-center gap-2 text-blue-600 font-semibold bg-blue-50 px-6 py-3 rounded-xl">

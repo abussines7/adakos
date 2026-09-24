@@ -1,44 +1,25 @@
-// src/components/explore/FilterSidebar.tsx
+// components/explore/FilterSidebar.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useExploreNavigation } from '@/hooks/useExploreNavigation';
+import type { AreaOption } from '@/src/lib/areas';
 
-interface AreaOption {
-  id: string;
-  nama: string;
-  slug: string;
-}
+const TIPE_OPTIONS = [
+  { value: 'semua', label: 'Semua' },
+  { value: 'putra', label: 'Putra' },
+  { value: 'putri', label: 'Putri' },
+  { value: 'campur', label: 'Campur' },
+];
 
 interface FilterSidebarProps {
+  areas: AreaOption[];
   currentArea: string;
   currentTipe: string;
-  setFilter: (key: string, value: string) => void;
-  resetFilters: () => void;
 }
 
-export default function FilterSidebar({
-  currentArea,
-  currentTipe,
-  setFilter,
-  resetFilters,
-}: FilterSidebarProps) {
-  const [areas, setAreas] = useState<AreaOption[]>([]);
-
-  useEffect(() => {
-    const fetchAreas = async () => {
-      try {
-        const res = await fetch('/api/areas');
-        const json = await res.json();
-        if (json.data) {
-          setAreas(json.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch areas:', err);
-      }
-    };
-    fetchAreas();
-  }, []);
+export default function FilterSidebar({ areas, currentArea, currentTipe }: FilterSidebarProps) {
+  const { setFilter, resetFilters } = useExploreNavigation();
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 sticky top-24">
@@ -50,9 +31,12 @@ export default function FilterSidebar({
       </div>
 
       <div className="mb-6">
-        <span className="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Area / Lokasi</span>
+        <label htmlFor="filter-area" className="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">
+          Area / Lokasi
+        </label>
         <div className="relative">
           <select
+            id="filter-area"
             value={currentArea}
             onChange={(e) => setFilter('area', e.target.value)}
             className="w-full p-2.5 pr-10 rounded-xl border border-slate-200 bg-white text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm cursor-pointer appearance-none"
@@ -73,21 +57,21 @@ export default function FilterSidebar({
       <div>
         <span className="block text-xs text-slate-400 uppercase tracking-wider font-semibold mb-2">Tipe Kos</span>
         <div className="flex flex-wrap gap-2">
-          {['semua', 'putra', 'putri', 'campur'].map((tipe) => {
-            const isActive = currentTipe === tipe;
-            const displayLabel = tipe === 'semua' ? 'Semua' : tipe === 'putra' ? 'Putra' : tipe === 'putri' ? 'Putri' : 'Campur';
+          {TIPE_OPTIONS.map(({ value, label }) => {
+            const isActive = currentTipe === value;
             return (
               <button
-                key={tipe}
+                key={value}
                 type="button"
-                onClick={() => setFilter('tipe', tipe)}
-                className={`cursor-pointer transition-all ${
+                aria-pressed={isActive}
+                onClick={() => setFilter('tipe', value)}
+                className={`cursor-pointer transition-all rounded-full px-3 py-1.5 text-xs font-semibold border ${
                   isActive
-                    ? 'bg-blue-600 border border-blue-600 text-white rounded-full px-3 py-1.5 text-xs font-semibold'
-                    : 'bg-white border border-slate-200 text-slate-600 rounded-full px-3 py-1.5 text-xs font-semibold hover:border-slate-300'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                 }`}
               >
-                {displayLabel}
+                {label}
               </button>
             );
           })}

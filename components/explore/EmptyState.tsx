@@ -1,11 +1,8 @@
-// src/components/explore/EmptyState.tsx
+// components/explore/EmptyState.tsx
+import Link from 'next/link';
 import { SearchX } from 'lucide-react';
 
-interface EmptyStateProps {
-  onReset: () => void;
-}
-
-export default function EmptyState({ onReset }: EmptyStateProps) {
+export default function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white rounded-2xl border border-slate-200 border-dashed">
       <div className="bg-slate-50 p-4 rounded-full mb-4">
@@ -15,12 +12,12 @@ export default function EmptyState({ onReset }: EmptyStateProps) {
       <p className="text-slate-500 max-w-md mb-6">
         Kami belum memiliki properti yang sesuai dengan kriteria filter Anda saat ini. Coba ubah area atau tipe kos.
       </p>
-      <button 
-        onClick={onReset}
+      <Link
+        href="/explore"
         className="px-6 py-2 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
       >
         Atur Ulang Filter
-      </button>
+      </Link>
     </div>
   );
 }

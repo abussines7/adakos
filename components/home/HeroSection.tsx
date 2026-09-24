@@ -4,12 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Sparkles } from 'lucide-react';
-
-interface AreaOption {
-  id: string;
-  nama: string;
-  slug: string;
-}
+import type { AreaOption } from '@/src/lib/areas';
 
 export default function HeroSection({ areas }: { areas: AreaOption[] }) {
   const router = useRouter();
@@ -98,6 +93,7 @@ export default function HeroSection({ areas }: { areas: AreaOption[] }) {
                   type="text"
                   value={aiQuery}
                   onChange={(e) => setAiQuery(e.target.value)}
+                  maxLength={200}
                   placeholder="Coba: 'kos putri dekat sahabat under 1jt bebas banjir'"
                   className="flex-grow bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm"
                 />
