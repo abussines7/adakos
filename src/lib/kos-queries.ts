@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { db } from '@/src/db';
 import {
   kos,
@@ -87,7 +88,7 @@ function parseHarga(value: string | null): number | undefined {
 
 // Escape karakter wildcard LIKE (% dan _) serta backslash (escape default
 // Postgres) agar input user dicocokkan secara literal.
-function escapeLikePattern(value: string): string {
+export function escapeLikePattern(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
@@ -326,7 +327,9 @@ export async function fallbackKeywordSearch(
   return listPublishedKos(filters, pagination);
 }
 
-export async function findPublishedKosBySlug(slug: string) {
+// React cache: generateMetadata dan halaman detail memanggil fungsi ini
+// dengan slug yang sama dalam satu request, tetapi query hanya jalan sekali.
+export const findPublishedKosBySlug = cache(async (slug: string) => {
   const result = await db.query.kos.findFirst({
     where: and(eq(kos.slug, slug), eq(kos.is_published, true)),
     with: {
@@ -340,4 +343,4 @@ export async function findPublishedKosBySlug(slug: string) {
   });
 
   return result ?? null;
-}
+});

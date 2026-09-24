@@ -1,4 +1,5 @@
 // app/kos/[slug]/page.tsx
+import type { Metadata } from 'next';
 import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
 import { KosProperty } from '@/data/types';
 import { notFound } from 'next/navigation';
@@ -12,10 +13,42 @@ import { MapPin, CheckCircle2 } from 'lucide-react';
 
 export const revalidate = 300;
 
+type KosPageProps = { params: Promise<{ slug: string }> };
+
+const formatRupiah = (value: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+
+export async function generateMetadata({ params }: KosPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await findPublishedKosBySlug(slug);
+
+  if (!result) {
+    return { title: 'Kos tidak ditemukan' };
+  }
+
+  const areaNama = result.area?.nama ?? 'sekitar Unhas';
+  const description = `Kos ${result.tipe} di ${areaNama}, ${formatRupiah(result.harga_bulanan)}/bulan. Lihat kondisi jalan, status banjir, dan rute ke kampus Unhas.`;
+  const fotoUtama = result.foto[0]?.url;
+
+  return {
+    title: result.nama,
+    description,
+    alternates: { canonical: `/kos/${result.slug}` },
+    // Kos data contoh bukan listing sungguhan; jangan diindeks mesin pencari.
+    robots: SAMPLE_DATA_MODE ? { index: false, follow: true } : undefined,
+    openGraph: {
+      title: result.nama,
+      description,
+      url: `/kos/${result.slug}`,
+      images: fotoUtama ? [{ url: fotoUtama, alt: result.nama }] : undefined,
+    },
+  };
+}
+
 const isAksesKendaraan = (value: string): value is KosProperty['akses_kendaraan'][number] =>
   value === 'motor' || value === 'mobil';
 
-export default async function KosDetail({ params }: { params: Promise<{ slug: string }> }) {
+export default async function KosDetail({ params }: KosPageProps) {
   const { slug } = await params;
   const result = await findPublishedKosBySlug(slug);
 
@@ -51,9 +84,7 @@ export default async function KosDetail({ params }: { params: Promise<{ slug: st
     kontak_pemilik: result.pemilik && !SAMPLE_DATA_MODE ? result.pemilik.telepon : '',
   };
 
-  const hargaFormatted = new Intl.NumberFormat('id-ID', {
-    style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-  }).format(kos.harga_bulanan);
+  const hargaFormatted = formatRupiah(kos.harga_bulanan);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">

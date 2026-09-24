@@ -8,7 +8,7 @@ import { getCachedAreas, type AreaOption } from '@/src/lib/areas';
 import { parseExploreParams, type RawSearchParams } from '@/src/lib/explore-params';
 
 export const metadata: Metadata = {
-  title: 'Eksplorasi Kos | Adakos',
+  title: 'Eksplorasi Kos',
   description: 'Cari kos di sekitar Universitas Hasanuddin berdasarkan area, tipe, kondisi jalan, dan status banjir.',
 };
 

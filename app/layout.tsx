@@ -7,14 +7,27 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SampleDataBanner from "@/components/layout/SampleDataBanner";
 import { cn } from "@/src/lib/utils";
+import { SITE_NAME, SITE_URL } from "@/src/lib/site-config";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
+const SITE_DESCRIPTION = "E-Katalog indekos transparan di sekitar Universitas Hasanuddin Makassar.";
+
 export const metadata: Metadata = {
-  title: "Adakos | Cari Kos Area Unhas",
-  description: "E-Katalog indekos transparan di sekitar Universitas Hasanuddin Makassar.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Adakos | Cari Kos Area Unhas",
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
