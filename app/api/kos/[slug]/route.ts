@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/api/kos/[slug]/route.ts
 // Next.js Route Handler — Get detailed single Kos property
 
@@ -14,7 +13,7 @@ interface RouteParams {
   }>;
 }
 
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, { params }: RouteParams) {
   try {
     const { slug } = await params;
 
@@ -54,18 +53,18 @@ export async function GET(request: Request, { params }: RouteParams) {
         nama: result.pemilik.nama,
         telepon: result.pemilik.telepon,
       } : null,
-      foto: result.foto.map((f: any) => ({
+      foto: result.foto.map((f) => ({
         url: f.url,
         urutan: f.urutan,
         alt_text: f.alt_text,
       })),
       fasilitas_internal: result.fasilitasInternal
-        .map((junction: any) => junction.fasilitas.nama),
-      fasilitas_sekitar: result.fasilitasSekitar.map((fs: any) => ({
+        .map((junction) => junction.fasilitas.nama),
+      fasilitas_sekitar: result.fasilitasSekitar.map((fs) => ({
         nama: fs.nama,
         jarak_meter: fs.jarak_meter,
       })),
-      rute_kampus: result.ruteKampus.map((r: any) => ({
+      rute_kampus: result.ruteKampus.map((r) => ({
         rute: r.rute,
         estimasi_waktu: r.estimasi_waktu,
         urutan: r.urutan,

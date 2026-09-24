@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const revalidate = 300;
-
-// app/kos/[id]/page.tsx
+// app/kos/[slug]/page.tsx
 import { findPublishedKosBySlug } from '@/src/lib/kos-queries';
 import { KosProperty } from '@/data/types';
 import { notFound } from 'next/navigation';
@@ -13,12 +10,15 @@ import WhatsAppCTA from '@/components/detail/WhatsAppCTA';
 import IconLabel from '@/components/shared/IconLabel';
 import { MapPin, CheckCircle2 } from 'lucide-react';
 
-export default async function KosDetail({ params }: { params: Promise<{ id: string }> }) {
-  // Tunggu parameter URL terekstrak (Standar baru Next.js 15)
-  const resolvedParams = await params;
-  
-  const result = await findPublishedKosBySlug(resolvedParams.id);
-  
+export const revalidate = 300;
+
+const isAksesKendaraan = (value: string): value is KosProperty['akses_kendaraan'][number] =>
+  value === 'motor' || value === 'mobil';
+
+export default async function KosDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const result = await findPublishedKosBySlug(slug);
+
   if (!result) {
     notFound();
   }
@@ -30,25 +30,19 @@ export default async function KosDetail({ params }: { params: Promise<{ id: stri
     tipe: result.tipe,
     area: result.area ? result.area.nama : '',
     harga_bulanan: result.harga_bulanan,
-    foto: result.foto ? result.foto.map((f: any) => f.url) : [],
-    fasilitas_internal: result.fasilitasInternal
-      ? result.fasilitasInternal.map((junction: any) => junction.fasilitas.nama)
-      : [],
+    foto: result.foto.map((f) => f.url),
+    fasilitas_internal: result.fasilitasInternal.map((junction) => junction.fasilitas.nama),
     kondisi_jalan: result.kondisi_jalan,
-    akses_kendaraan: (result.akses_kendaraan || []) as any,
+    akses_kendaraan: result.akses_kendaraan.filter(isAksesKendaraan),
     status_banjir: result.status_banjir,
-    fasilitas_sekitar: result.fasilitasSekitar
-      ? result.fasilitasSekitar.map((fs: any) => ({
-          nama: fs.nama,
-          jarak_meter: fs.jarak_meter,
-        }))
-      : [],
-    rute_kampus: result.ruteKampus
-      ? result.ruteKampus.map((r: any) => ({
-          rute: r.rute,
-          estimasi_waktu: r.estimasi_waktu,
-        }))
-      : [],
+    fasilitas_sekitar: result.fasilitasSekitar.map((fs) => ({
+      nama: fs.nama,
+      jarak_meter: fs.jarak_meter,
+    })),
+    rute_kampus: result.ruteKampus.map((r) => ({
+      rute: r.rute,
+      estimasi_waktu: r.estimasi_waktu,
+    })),
     koordinat: {
       lat: result.latitude,
       lng: result.longitude,

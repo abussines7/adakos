@@ -6,7 +6,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SampleDataBanner from "@/components/layout/SampleDataBanner";
-import { cn } from "@/lib/utils";
+import { cn } from "@/src/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
