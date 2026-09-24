@@ -28,6 +28,16 @@ describe('parseExploreParams', () => {
     assert.equal(parseExploreParams({ limit: 'abc' }).limit, EXPLORE_PAGE_SIZE);
   });
 
+  it('menandai filter cepat hanya untuk nilai yang valid', () => {
+    const active = parseExploreParams({ status_banjir: 'aman', kondisi_jalan: 'mulus' });
+    assert.equal(active.onlyBebasBanjir, true);
+    assert.equal(active.onlyJalanMulus, true);
+
+    const other = parseExploreParams({ status_banjir: 'rawan', kondisi_jalan: 'bogus' });
+    assert.equal(other.onlyBebasBanjir, false);
+    assert.equal(other.onlyJalanMulus, false);
+  });
+
   it('mengambil nilai pertama bila parameter berulang, dan memotong query AI', () => {
     const params = parseExploreParams({ tipe: ['putra', 'putri'], ai_query: ` ${'q'.repeat(300)} ` });
     assert.equal(params.currentTipe, 'putra');

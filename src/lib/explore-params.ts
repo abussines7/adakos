@@ -10,6 +10,8 @@ export type ExploreParams = {
   filters: KosListFilters;
   currentArea: string;
   currentTipe: string;
+  onlyBebasBanjir: boolean;
+  onlyJalanMulus: boolean;
   aiQuery: string;
   limit: number;
   canLoadMore: boolean;
@@ -43,10 +45,14 @@ export function parseExploreParams(raw: RawSearchParams): ExploreParams {
   const loadMoreParams = new URLSearchParams(params);
   loadMoreParams.set('limit', String(limit + EXPLORE_PAGE_SIZE));
 
+  const filters = parseKosFiltersFromSearchParams(params);
+
   return {
-    filters: parseKosFiltersFromSearchParams(params),
+    filters,
     currentArea: params.get('area') ?? 'semua',
     currentTipe: params.get('tipe') ?? 'semua',
+    onlyBebasBanjir: filters.statusBanjir === 'aman',
+    onlyJalanMulus: filters.kondisiJalan === 'mulus',
     aiQuery: (params.get('ai_query') ?? '').trim().slice(0, MAX_QUERY_LENGTH),
     limit,
     canLoadMore: limit < EXPLORE_MAX_LIMIT,
